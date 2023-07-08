@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "LiPo-BoardV1")(type "KiCad")(uri "$(KIPRJMOD)/LiPo-BoardV1.pretty")(options "")(descr ""))
+)
