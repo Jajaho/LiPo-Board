@@ -55,3 +55,10 @@ eagle.epf
 *.lck
 
 # End of https://www.toptal.com/developers/gitignore/api/eagle
+
+### KiCad ###
+# Automatic project backups
+*-backups/
+
+# Local file history
+.history/
