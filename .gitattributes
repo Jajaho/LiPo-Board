@@ -1,0 +1,7 @@
+# The repository stores LF, and the working tree keeps LF on every platform. KiCad writes LF
+# itself, so its files no longer flip to CRLF on checkout and back again on save.
+* text=auto eol=lf
+
+*.zip binary
+*.png binary
+*.pdf binary
