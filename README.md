@@ -1,4 +1,4 @@
-# Battery Management and Boost Board
+# Battery Management and Boost Converter Board
 
 This PCB combines a single cell 3.7 V LiPo-battery charger and protection circuitry with a 5 V boost converter to deliver up to 1 A of current for small projects.
 The main components are:
