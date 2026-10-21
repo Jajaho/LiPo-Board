@@ -1,0 +1,1030 @@
+<title>LiPo-Board Boost Return Paths</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; the board viewer breaks out to the full column width as a dark CAD canvas in both themes. */
+:root {
+  --bg: #f2f4f1;
+  --surface: #ffffff;
+  --ink: #141a17;
+  --ink-2: #44514b;
+  --ink-3: #66756e;
+  --rule: #d3dbd6;
+  --accent: #0d6a52;
+  --accent-soft: #dcebe5;
+  --sev-high: #c4372f;
+  --sev-med: #9a6400;
+  --sev-low: #2f63a8;
+  --sev-info: #5f6d66;
+  --sev-high-bg: #f8e3e1;
+  --sev-med-bg: #f6ead2;
+  --sev-low-bg: #e1eaf6;
+  --sev-info-bg: #e7ebe8;
+  /* board canvas: deliberately the same in both themes */
+  --pcb-out: #0b100e;
+  --pcb-board: #142620;
+  --pcb-edge: #5d7a6d;
+  --cu-top: #8c6a43;
+  --cu-top-hi: #c99a5c;
+  --cu-bot: #345a86;
+  --cu-bot-hi: #5d8cc4;
+  --cu-pad: #b48d5c;
+  --fab: #dce7e1;
+  --pcb-label: #eef4f0;
+  --pcb-label-halo: #0b100e;
+  --flow: #fff7e6;
+  --flow-bot: #bfe9ff;
+  --isl-a: #3987e5;
+  --isl-b: #199e70;
+  --isl-c: #d55181;
+  --mark: #ffd166;
+  --mark-ink: #1a1407;
+  --iso: #ece6ff;
+  --via: #9aa7a0;
+  --bat-hi: #e4b54a;
+  --pcb-ink: #e6eee9;
+  --pcb-ink-2: #a9b9b1;
+  --font-display: "Barlow Semi Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1311; --surface: #141c19; --ink: #e7eeea; --ink-2: #b3c1ba; --ink-3: #86958e; --rule: #25312c;
+    --accent: #45c49c; --accent-soft: #17302a;
+    --sev-high: #ef7b73; --sev-med: #e3ab45; --sev-low: #7aa9ea; --sev-info: #9aa8a1;
+    --sev-high-bg: #3a1c1a; --sev-med-bg: #33280f; --sev-low-bg: #18263a; --sev-info-bg: #1f2724;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1311; --surface: #141c19; --ink: #e7eeea; --ink-2: #b3c1ba; --ink-3: #86958e; --rule: #25312c;
+  --accent: #45c49c; --accent-soft: #17302a;
+  --sev-high: #ef7b73; --sev-med: #e3ab45; --sev-low: #7aa9ea; --sev-info: #9aa8a1;
+  --sev-high-bg: #3a1c1a; --sev-med-bg: #33280f; --sev-low-bg: #18263a; --sev-info-bg: #1f2724;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+.page { max-width: 1180px; margin: 0 auto; padding-block: 2.5rem 4rem; display: grid; gap: 3rem; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: 0.005em; }
+h1 { font-size: clamp(2rem, 4.2vw, 3.1rem); line-height: 1.05; font-weight: 700; }
+h2 { font-size: 1.65rem; font-weight: 600; line-height: 1.15; }
+h3 { font-size: 1.22rem; font-weight: 600; line-height: 1.2; }
+p { margin: 0; }
+.eyebrow { font-family: var(--font-data); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.mono { font-family: var(--font-data); font-size: 0.92em; }
+.num { font-variant-numeric: tabular-nums; }
+a { color: var(--accent); }
+
+/* masthead */
+.masthead { display: grid; gap: 1rem; }
+.lede { font-size: 1.2rem; color: var(--ink-2); max-width: 68ch; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; margin: 0.5rem 0 0; }
+.fact { background: var(--surface); padding: 0.9rem 1rem 1rem; display: grid; gap: 0.25rem; align-content: start; }
+.fact dt { font-size: 0.86rem; color: var(--ink-3); order: 2; }
+.fact dd { margin: 0; }
+.fact dd.big { font-family: var(--font-display); font-size: 1.9rem; font-weight: 600; line-height: 1.05; font-variant-numeric: tabular-nums; order: 1; }
+.fact dd.big small { font-size: 1rem; font-weight: 500; color: var(--ink-2); }
+.fact dd.ctx { order: 3; font-size: 0.86rem; color: var(--ink-2); }
+
+/* viewer */
+.viewer { display: grid; gap: 0.9rem; }
+.viewer-head { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: end; justify-content: space-between; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; }
+.tabs { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.tab, .seg button, .btn {
+  font: 500 0.95rem/1 var(--font-body); color: var(--ink-2); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 0.5rem 0.9rem; cursor: pointer;
+}
+.tab:hover, .seg button:hover, .btn:hover { color: var(--ink); border-color: var(--ink-3); }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; border-radius: 0; padding: 0.45rem 0.8rem; font-size: 0.9rem; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.ctl-label { font-size: 0.8rem; color: var(--ink-3); margin-right: 0.35rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.stage-wrap { background: var(--pcb-out); border-radius: 8px; padding: 10px; overflow: hidden; }
+.stage { position: relative; width: 100%; max-width: 100%; }
+.stage svg, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage canvas { pointer-events: none; }
+#overlay { pointer-events: none; }
+.tip { position: absolute; pointer-events: none; background: rgba(11,16,14,0.92); color: var(--pcb-ink); border: 1px solid var(--pcb-edge);
+  border-radius: 4px; padding: 0.35rem 0.55rem; font: 0.8rem/1.35 var(--font-data); white-space: nowrap; transform: translate(12px, 12px); z-index: 3; }
+.stage-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; padding: 0.55rem 0.2rem 0.1rem; color: var(--pcb-ink-2); font: 0.8rem/1.4 var(--font-data); }
+.legend { display: flex; flex-wrap: wrap; gap: 0.6rem 1.6rem; align-items: center; }
+.ramp { display: inline-grid; grid-template-columns: auto 160px; gap: 0.15rem 0.5rem; align-items: center; }
+.ramp .bar { height: 9px; border-radius: 2px; }
+.ramp .ticks { grid-column: 2; display: flex; justify-content: space-between; font-size: 0.72rem; }
+.sw { display: inline-flex; align-items: center; gap: 0.4rem; }
+.sw i { display: inline-block; width: 22px; height: 10px; border-radius: 2px; }
+.sw i.line { height: 0; border-top: 2.5px dashed var(--flow); border-radius: 0; }
+.sw i.lineb { height: 0; border-top: 2.5px dotted var(--flow-bot); border-radius: 0; }
+
+/* explanation under the board */
+.explain { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.25rem 2.5rem; align-items: start; }
+.explain .what { display: grid; gap: 0.7rem; max-width: 66ch; }
+.explain .what p { color: var(--ink-2); }
+.explain dl { margin: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.explain dl div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.explain dt { color: var(--ink-2); font-size: 0.95rem; }
+.explain dd { margin: 0; font-family: var(--font-data); font-size: 0.95rem; text-align: right; font-variant-numeric: tabular-nums; }
+.explain dd small { display: block; color: var(--ink-3); font-size: 0.78rem; }
+@media (max-width: 760px) { .explain { grid-template-columns: minmax(0, 1fr); } }
+
+/* findings */
+.section-head { display: grid; gap: 0.4rem; margin-bottom: 1.2rem; }
+.section-head p { color: var(--ink-2); max-width: 68ch; }
+.findings { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--rule); counter-reset: f; }
+.finding { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: 0.2rem 1rem; padding: 1.3rem 0; border-bottom: 1px solid var(--rule); }
+.finding .no { font: 600 1.4rem/1 var(--font-display); color: var(--ink-3); padding-top: 0.2rem; font-variant-numeric: tabular-nums; }
+.finding .body { display: grid; gap: 0.55rem; min-width: 0; }
+.finding .top { display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; align-items: center; }
+.finding p { color: var(--ink-2); max-width: 74ch; }
+.finding p.fix { color: var(--ink); }
+.finding p.fix b { font-family: var(--font-data); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-right: 0.4rem; }
+.pill { display: inline-flex; align-items: center; gap: 0.35rem; font: 600 0.74rem/1 var(--font-data); letter-spacing: 0.06em; text-transform: uppercase; padding: 0.32rem 0.55rem; border-radius: 4px; }
+.pill svg { width: 12px; height: 12px; }
+.pill.high { color: var(--sev-high); background: var(--sev-high-bg); }
+.pill.med { color: var(--sev-med); background: var(--sev-med-bg); }
+.pill.low { color: var(--sev-low); background: var(--sev-low-bg); }
+.pill.info { color: var(--sev-info); background: var(--sev-info-bg); }
+.show { font: 500 0.88rem/1 var(--font-body); color: var(--accent); background: none; border: 1px solid currentColor; border-radius: 999px; padding: 0.35rem 0.7rem; cursor: pointer; }
+.show:hover { background: var(--accent-soft); }
+
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem 3rem; }
+.checklist { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.6rem; color: var(--ink-2); }
+.checklist b { color: var(--ink); font-weight: 600; }
+.method { display: grid; gap: 0.8rem; color: var(--ink-2); max-width: 78ch; font-size: 0.98rem; }
+.method ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.45rem; }
+footer { color: var(--ink-3); font-size: 0.85rem; }
+
+/* svg text and marks (sizes in board mm are set from script so they stay readable at any zoom) */
+.lbl { fill: var(--pcb-label); font-family: var(--font-data); paint-order: stroke; stroke: var(--pcb-label-halo); stroke-linejoin: round; }
+.lbl.dim { fill: var(--pcb-ink-2); }
+.lbl.big { font-family: var(--font-display); font-weight: 700; }
+.fabl { fill: none; stroke: var(--fab); stroke-opacity: 0.38; }
+.fwd { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.fwd.F { stroke: var(--flow); }
+.fwd.B { stroke: var(--flow-bot); }
+.fwd.part { stroke: var(--flow); stroke-opacity: 0.75; }
+.fwd-under { fill: none; stroke: var(--pcb-out); stroke-opacity: 0.55; stroke-linecap: round; stroke-linejoin: round; }
+.arrowhead { fill: var(--flow); }
+.arrowhead.B { fill: var(--flow-bot); }
+.vialbl { fill: var(--pcb-label); font-family: var(--font-data); paint-order: stroke; stroke: var(--pcb-label-halo); stroke-linejoin: round; }
+.viaring { fill: none; stroke: var(--mark); }
+.probe { fill: var(--mark); stroke: var(--pcb-out); }
+.marker circle { fill: var(--mark); stroke: var(--pcb-out); }
+.marker text { fill: var(--mark-ink); font-family: var(--font-display); font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+.marker.pulse circle { animation: pulse 1.1s ease-out 3; }
+@keyframes pulse { 0% { stroke: var(--mark); stroke-opacity: 1; } 100% { stroke: var(--mark); stroke-opacity: 0; } }
+.iso { fill: none; stroke: var(--iso); stroke-opacity: 0.45; }
+
+/* layer & tab visibility for the copper canvas */
+#board .L-B, #board .H-B { transition: opacity .2s; }
+.stage[data-layer="top"] #board .L-B, .stage[data-layer="top"] #board .H-B { display: none; }
+.stage[data-layer="bottom"] #board .L-F, .stage[data-layer="bottom"] #board .H-F { display: none; }
+.stage[data-layer="both"] #board .L-F { opacity: 0.55; }
+.stage[data-layer="both"] #board image { opacity: 0.85; }
+.stage[data-layer="bottom"] #overlay .onF { opacity: 0.3; }
+.stage[data-layer="top"] #overlay .onB { opacity: 0.3; }
+.isl { fill: var(--cu-top); }
+.isl.bottom { fill: var(--cu-bot); }
+.stage[data-tab="islands"] .isl.ic { fill: var(--isl-a); }
+.stage[data-tab="islands"] .isl.main { fill: var(--isl-b); }
+.stage[data-tab="islands"] .isl.sw { fill: var(--isl-c); }
+.trk { fill: none; stroke-linecap: round; }
+.trk.F { stroke: var(--cu-top); } .trk.B { stroke: var(--cu-bot); }
+.pad.F { fill: var(--cu-pad); } .pad.B { fill: var(--cu-bot-hi); }
+.via { fill: var(--via); } .via-hole { fill: var(--pcb-out); }
+.stage[data-tab="hot"] .trk.F.n-sw, .stage[data-tab="hot"] .trk.F.n-vout,
+.stage[data-tab="input"] .trk.F.n-vin, .stage[data-tab="input"] .trk.F.n-sw,
+.stage[data-tab="dc"] .trk.F.n-vin, .stage[data-tab="dc"] .trk.F.n-vout, .stage[data-tab="dc"] .trk.F.n-batn, .stage[data-tab="dc"] .trk.F.n-sw,
+.stage[data-tab="fb"] .trk.F.n-fb, .stage[data-tab="fb"] .trk.F.n-vout { stroke: var(--cu-top-hi); }
+.stage[data-tab="input"] .trk.B.n-vin, .stage[data-tab="dc"] .trk.B.n-vin, .stage[data-tab="dc"] .trk.B.n-batn { stroke: var(--cu-bot-hi); }
+.stage[data-tab="islands"] .trk.B.n-vin, .stage[data-tab="islands"] .trk.B.n-batn { stroke: var(--bat-hi); }
+@media (prefers-reduced-motion: reduce) { .marker.pulse circle { animation: none; stroke: var(--mark); } }
+@media (max-width: 560px) {
+  .finding { grid-template-columns: minmax(0, 1fr); }
+  .finding .no { padding: 0; }
+  .fact dd.big { font-size: 1.6rem; }
+}
+</style>
+
+<main class="page">
+  <header class="masthead">
+    <p class="eyebrow">Layout review · LiPo-Board V1, 2019 · MT3608 boost stage · as-fabricated copper</p>
+    <h1>Where the boost converter's currents actually flow</h1>
+    <p class="lede">The switching loop is routed through the bottom layer because the output capacitor and the MT3608 ground pin sit on two separate top-layer copper islands. The feedback divider's ground sits in the middle of that detour. DC drops are negligible; the problems are loop area and ground noise at the 1.2&nbsp;MHz switching edges.</p>
+    <dl class="facts">
+      <div class="fact"><dt>Switching loop area</dt><dd class="big num">93–180 <small>mm²</small></dd><dd class="ctx">49&nbsp;mm² with a direct top connection from C3− to IC1 pin&nbsp;2</dd></div>
+      <div class="fact"><dt>R3 ground position in the return drop</dt><dd class="big num">68 <small>%</small></dd><dd class="ctx">≈60&nbsp;% of the return-path noise reaches FB</dd></div>
+      <div class="fact"><dt>From C3− back to IC1 pin 2</dt><dd class="big num">2 <small>layer changes</small></dd><dd class="ctx">4.4&nbsp;mΩ return path; no ground via at C3</dd></div>
+      <div class="fact"><dt>IC1 IN pin to its nearest capacitor</dt><dd class="big num">≈18 <small>mm</small></dd><dd class="ctx">0.5&nbsp;mm trace and two vias, no local bypass</dd></div>
+    </dl>
+  </header>
+
+  <section class="viewer" id="viewer" aria-labelledby="viewer-h">
+    <div class="viewer-head">
+      <div class="section-head" style="margin:0">
+        <h2 id="viewer-h">Current flow on the board</h2>
+      </div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Copper layer">
+          <button type="button" id="ly-top" data-layer="top" aria-pressed="false">Top</button>
+          <button type="button" id="ly-bottom" data-layer="bottom" aria-pressed="false">Bottom</button>
+          <button type="button" id="ly-both" data-layer="both" aria-pressed="true">Both</button>
+        </div>
+        <div class="seg" role="group" aria-label="Zoom">
+          <button type="button" id="zm-boost" data-zoom="boost" aria-pressed="true">Boost stage</button>
+          <button type="button" id="zm-board" data-zoom="board" aria-pressed="false">Whole board</button>
+        </div>
+        <button type="button" class="btn" id="motion" aria-pressed="false">Pause flow</button>
+      </div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Current path">
+      <button type="button" class="tab" role="tab" id="tab-hot" data-tab="hot" aria-selected="true">Switching loop</button>
+      <button type="button" class="tab" role="tab" id="tab-input" data-tab="input" aria-selected="false">Input loop</button>
+      <button type="button" class="tab" role="tab" id="tab-dc" data-tab="dc" aria-selected="false">DC power path</button>
+      <button type="button" class="tab" role="tab" id="tab-fb" data-tab="fb" aria-selected="false">Feedback vs. return</button>
+      <button type="button" class="tab" role="tab" id="tab-islands" data-tab="islands" aria-selected="false">Ground islands</button>
+    </div>
+    <div class="stage-wrap">
+      <div class="stage" id="stage" data-layer="both" data-tab="hot">
+        <svg id="board" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PCB copper with simulated ground current density"></svg>
+        <canvas id="flow" aria-hidden="true"></canvas>
+        <svg id="overlay" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+      <div class="stage-foot">
+        <div class="legend" id="legend"></div>
+        <span id="coord">Hover the board for pin, net and local current density</span>
+      </div>
+    </div>
+    <div class="explain" id="explain"></div>
+  </section>
+
+  <section aria-labelledby="find-h">
+    <div class="section-head">
+      <h2 id="find-h">Findings, most severe first</h2>
+      <p>Each item links to the board view where it shows up. Percentages for the switching and input loops are shares of a 1&nbsp;A loop current; the DC view uses a 1&nbsp;A load.</p>
+    </div>
+    <ol class="findings" id="findings"></ol>
+  </section>
+
+  <section class="two" aria-label="Respin and what already works">
+    <div>
+      <div class="section-head"><h2>If you respin it</h2></div>
+      <ol class="checklist">
+        <li><b>Close the switching loop on the top layer.</b> Place C3 so its ground pad lands beside IC1 pin 2 and D1's cathode, pour solid copper between them and stitch C3− to the bottom with 2–4 vias.</li>
+        <li><b>Clear the bottom layer under the converter.</b> Move the BAT+/BAT− pair to the top or around the edge, or put the battery pads next to L1 and Q1, so the bottom is one unbroken ground under L1, D1, IC1 and C3.</li>
+        <li><b>Kelvin the feedback.</b> R2/R3 next to IC1 pin 3, R3's ground straight to IC1 pin 2 on its own trace, 5&nbsp;V sense taken from C3+ or J2.</li>
+        <li><b>Bypass IN.</b> 1–4.7&nbsp;µF X7R from pin 5 to pin 2 at the package.</li>
+        <li><b>Shorten the SW node.</b> D1's anode at IC1 pin 1, SW connection as wide as the pad, C1 against L1 pin 1 with its ground on IC1's copper.</li>
+      </ol>
+    </div>
+    <div>
+      <div class="section-head"><h2>What already works</h2></div>
+      <ul class="checklist">
+        <li><b>The battery pair is tight.</b> BAT+ and BAT− run side by side 2.5&nbsp;mm apart, so the DC battery loop encloses little area.</li>
+        <li><b>The output path is short and wide.</b> D1 → C3 → J2 is 1.27&nbsp;mm copper over about 8&nbsp;mm.</li>
+        <li><b>SW and FB leave the IC on opposite sides.</b> The SW copper stays above and left of IC1; the FB trace leaves downwards.</li>
+        <li><b>IC1 pin 2 has three vias.</b> Without them island A would hang on C4's single via.</li>
+        <li><b>DC ground offsets are negligible.</b> At 1&nbsp;A out, R3's ground sits 0.44&nbsp;mV above IC1's, which moves the output by −3.3&nbsp;mV.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="method" aria-labelledby="method-h">
+    <h2 id="method-h">How the currents were computed</h2>
+    <ul>
+      <li><b>Copper as fabricated.</b> Both copper layers come from the 2019-01-18 production Gerbers (EAGLE 9.2.2), rasterised at 0.05&nbsp;mm. Net names, pads and traces come from the KiCad-2019 project, whose tracks match the Gerbers.</li>
+      <li><b>Resistive current spreading.</b> The ground copper of both layers is solved as a sheet network: 35&nbsp;µm copper (0.49&nbsp;mΩ/□), vias with 0.35&nbsp;mm drill and 20&nbsp;µm plating (1.25&nbsp;mΩ each), plated pins as larger barrels. Currents are injected and removed at the pad areas.</li>
+      <li><b>Operating point.</b> Ideal converter, 3.7&nbsp;V cell, 5.1&nbsp;V out, 1&nbsp;A load: 1.5&nbsp;A from the cell and 0.5&nbsp;A average switch current out of IC1 pin 2.</li>
+      <li><b>Limits.</b> At switching-edge frequencies the return current crowds closer to the forward path than a DC solution shows, so the field overstates spreading. It still has to use the same islands and vias, which is why loop area is given as a range: 93&nbsp;mm² for the tightest possible route through the J3 vias, 180&nbsp;mm² for the DC spread (magnetic moment of the solved current).</li>
+      <li><b>KiCad check.</b> Re-running the solve on KiCad's own zone fill gives 3.8&nbsp;mΩ instead of 4.4&nbsp;mΩ and R3 at 73&nbsp;% instead of 68&nbsp;%. The conclusions are the same for both.</li>
+    </ul>
+    <footer>Board data: <span class="mono">src/kicad-2019/LiPo-BoardV1-2019.kicad_pcb</span> and <span class="mono">outputs/LiPo-BoardV1_2019-01-18.zip</span>.</footer>
+  </section>
+</main>
+
+<script>
+const D = /*__DATA__*/null;
+(function () {
+  'use strict';
+  const NS = 'http://www.w3.org/2000/svg';
+  const $ = (s) => document.querySelector(s);
+  const stage = $('#stage'), board = $('#board'), overlay = $('#overlay'), canvas = $('#flow'), tip = $('#tip');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const VIEWS = { boost: [140.0, 96.55, 36.6, 16.9], board: [125.55, 96.55, 51.05, 16.9] };
+  const state = { tab: 'hot', layer: 'both', zoom: 'boost', paused: false };
+  const FIELD_OF = { hot: 'hot', input: 'input', dc: 'dc', fb: 'hot', islands: null };
+
+  // ------------------------------------------------------------------ forward (go) paths, from the KiCad tracks
+  const PATHS = {
+    hot: [
+      { k: 'F', p: [[157.866, 104.079], [156.642, 104.079], [155.052, 102.489], [155.052, 99.568], [155.941, 98.679], [157.091, 98.679]] },
+      { k: 'part', p: [[157.091, 98.679], [161.141, 98.679]] },
+      { k: 'F', p: [[161.141, 98.679], [161.731, 99.269], [164.831, 99.269]] },
+      { k: 'part', p: [[164.831, 99.269], [164.831, 103.169]] },
+      { k: 'part', p: [[157.866, 105.029], [157.866, 104.079]] },
+    ],
+    input: [
+      { k: 'part', p: [[150.906, 110.109], [147.006, 110.109]] },
+      { k: 'F', p: [[147.006, 110.109], [147.006, 106.259], [147.006, 104.095], [145.4, 102.489]] },
+      { k: 'part', p: [[142.606, 98.464], [142.606, 100.164]] },
+      { k: 'F', p: [[142.606, 100.164], [143.832, 100.164], [145.4, 101.732], [145.4, 102.489]] },
+      { k: 'part', p: [[145.4, 102.489], [155.052, 102.489]] },
+      { k: 'F', p: [[155.052, 102.489], [156.642, 104.079], [157.866, 104.079]] },
+      { k: 'part', p: [[157.866, 104.079], [157.866, 105.029]] },
+    ],
+    dc: [
+      { k: 'ext', p: [[174.6, 102.489], [170.4, 102.489]] },
+      { k: 'B', p: [[169.276, 102.489], [162.926, 102.489], [161.656, 101.219], [148.956, 101.219]] },
+      { k: 'F', p: [[148.956, 101.219], [147.686, 101.219], [146.67, 101.219], [145.4, 102.489]] },
+      { k: 'part', p: [[145.4, 102.489], [155.052, 102.489]] },
+      { k: 'F', p: [[155.052, 102.489], [155.052, 99.568], [155.941, 98.679], [157.091, 98.679]] },
+      { k: 'part', p: [[157.091, 98.679], [161.141, 98.679]] },
+      { k: 'F', p: [[161.141, 98.679], [161.731, 99.269], [164.831, 99.269], [168.686, 99.269], [169.276, 98.679]] },
+      { k: 'ext', p: [[170.4, 98.679], [174.6, 98.679]] },
+      { k: 'ext', p: [[174.6, 111.379], [170.4, 111.379]] },
+      { k: 'part', p: [[142.586, 102.174], [142.586, 104.074]] },
+      { k: 'F', p: [[142.586, 104.074], [142.586, 106.619], [144.064, 106.619], [144.384, 106.299]] },
+      { k: 'B', p: [[144.384, 106.299], [145.146, 105.537], [146.924, 103.759], [160.386, 103.759], [164.196, 107.569], [169.276, 107.569]] },
+      { k: 'ext', p: [[170.4, 107.569], [174.6, 107.569]] },
+      { k: 'F', w: 0.6, p: [[155.052, 102.489], [156.642, 104.079], [157.866, 104.079]] },
+      { k: 'part', w: 0.6, p: [[157.866, 104.079], [157.866, 105.029]] },
+    ],
+    fb: [
+      { k: 'F', p: [[161.141, 98.679], [161.783, 99.321], [161.783, 105.156], [162.291, 105.664], [163.346, 105.664]] },
+      { k: 'part', p: [[163.346, 105.664], [165.046, 105.664]] },
+      { k: 'F', p: [[165.046, 105.664], [165.046, 106.592], [164.704, 106.934], [163.815, 106.934], [163.346, 107.403], [163.346, 108.204]] },
+      { k: 'part', p: [[163.346, 108.204], [165.046, 108.204]] },
+    ],
+    islands: [],
+  };
+  // static (no current) highlight: the high-impedance FB node from the divider tap to IC1 pin 3
+  const FB_NODE = [[163.346, 107.403], [163.131, 107.188], [158.481, 107.188], [157.866, 106.573], [157.866, 105.979]];
+
+  const EXT_LABELS = {
+    dc: [
+      { x: 171.25, y: 99.75, t: '1 A to load' },
+      { x: 171.25, y: 112.45, t: '1 A back from load' },
+      { x: 171.25, y: 103.56, t: '1.5 A from cell' },
+      { x: 171.25, y: 108.64, t: 'to cell −' },
+    ],
+  };
+  const PROBES = {
+    fb: [
+      { x: 157.866, y: 105.029, t: 'IC1 GND  0 %', dx: -0.9, dy: 1.6, anchor: 'end' },
+      { x: 165.046, y: 108.204, t: 'R3 GND  68 %', dx: 0.9, dy: 1.7, anchor: 'start' },
+      { x: 164.831, y: 103.169, t: 'C3−  100 %', dx: 1.9, dy: -0.4, anchor: 'start' },
+    ],
+  };
+  const ISLAND_TAGS = [
+    { x: 150.2, y: 104.9, t: 'A', sub: 'IC1 GND + C4' },
+    { x: 153.0, y: 108.3, t: 'B', sub: 'C3−, C1−, R3, J3, Q1' },
+    { x: 159.3, y: 101.6, t: 'C', sub: 'under SW, 1 via' },
+  ];
+
+  const FINDINGS = [
+    { sev: 'high', tab: 'hot', layer: 'both', zoom: 'boost', at: [161.78, 102.1],
+      title: "The output capacitor's ground is on a different copper island than IC1's ground pin",
+      body: [
+        "C3− sits on the main top pour; IC1 pin 2 sits on a separate island together with C4. The 5 V sense trace, R2/R3 and the FB trace wall the two off from each other, and there is no ground via at C3.",
+        "The switching return from C3 therefore drops to the bottom layer near J3 (58 %), at C1 (22 %) and through S1 pin 3 (15 %), and climbs back up through the three vias beside IC1 (86 %) and C4's via (14 %). That puts 93–180 mm² inside the loop where 49 mm² is possible with today's placement and under 20 mm² with a compact one. Expect more ringing on SW and the 5 V rail and more radiated noise at the switching harmonics.",
+      ],
+      fix: "Place C3 so its ground pad lands beside IC1 pin 2 and D1's cathode, connect them with solid top copper and add 2–4 vias at C3−. Route the 5 V sense so it does not run between them." },
+    { sev: 'high', tab: 'hot', layer: 'bottom', zoom: 'boost', at: [152.0, 102.5],
+      title: 'BAT+ and BAT− slice the bottom ground directly under the converter',
+      body: [
+        "Both 1.27 mm battery traces run on the bottom layer from J4/J5 to L1 and Q1, underneath L1, D1, IC1 and C3. They split the bottom pour into strips, so even with vias at C3 the bottom layer could not carry a return underneath the switching loop. The copper between the two traces joins the rest of the plane only at its left end.",
+        "Keeping the battery pair together is right for the DC loop. It needs to run somewhere else.",
+      ],
+      fix: "Route BAT+/BAT− on top or along the board edge, or move the battery pads next to L1 and Q1, and keep the bottom layer unbroken ground under the power stage." },
+    { sev: 'med', tab: 'fb', layer: 'top', zoom: 'boost', at: [166.55, 109.2],
+      title: "The feedback divider's ground is inside the switching return path",
+      body: [
+        "R3's ground pad is on the main pour, on the route the C3 return takes to the J3 vias. In the solved field it sits at 68 % of the drop between C3− and IC1 pin 2. The divider passes R2/(R2+R3) = 88 % of a shift at R3's ground to FB, so about 60 % of the return-path voltage appears on the 0.6 V feedback node.",
+        "At DC this is harmless: +0.44 mV at R3 for a 1 A load, or −3.3 mV at the output. At the switching edges it is ground bounce. With an assumed 2 nH of shared return and a 1.5 A edge in 10 ns, the path drops 0.3 V and FB sees spikes of about 0.18 V. Pulse jitter and extra output noise under load are the usual symptoms.",
+      ],
+      fix: "Put R2/R3 next to IC1 pin 3 and run R3's ground straight to IC1 pin 2 on its own trace instead of into the shared pour." },
+    { sev: 'med', tab: 'fb', layer: 'top', zoom: 'boost', at: [160.8, 107.19],
+      title: 'The long trace is the high-impedance FB node, and the output is sensed at the diode',
+      body: [
+        "Because the divider sits next to the output, about 10 mm of FB-node copper (882 Ω source impedance) runs from IC1 pin 3 below the IC to R2/R3. The 5 V sense branch starts at D1's cathode, upstream of C3, so it also sees the diode current edges on the D1 → C3 trace.",
+      ],
+      fix: "Keep the FB node a few millimetres long with the divider at the pin, and make the long run the low-impedance 5 V sense taken from C3+ or J2." },
+    { sev: 'med', tab: 'input', layer: 'both', zoom: 'boost', at: [161.6, 104.6],
+      title: "IC1's supply pin has no capacitor of its own",
+      body: [
+        "IN (pin 5) reaches the nearest capacitor, C1, through about 18 mm of 0.5 mm trace and two vias by way of the bottom layer. The internal gate driver's pulse current and the controller's own supply both see that trace inductance.",
+      ],
+      fix: "Add 1–4.7 µF X7R (0603 or 0805) from pin 5 to pin 2, directly at the package." },
+    { sev: 'low', tab: 'input', layer: 'both', zoom: 'boost', at: [148.96, 108.0],
+      title: 'C1 is far from L1 and grounded on the other island',
+      body: [
+        "C1, the 22 µF input capacitor, sits at the end of a 7.6 mm BAT+ trace, and its ground pad is on the main pour, so the ripple return from IC1 pin 2 reaches it only through the bottom layer. C4, a 10 µF 0603 by the charger that shares IC1's island, picks up 37 % of the ripple return in the ground-only model. A 10 µF 0603 also loses much of its capacitance at 3.7 V bias.",
+      ],
+      fix: "Move C1 against L1 pin 1 with its ground pad on the same top copper as IC1 pin 2." },
+    { sev: 'low', tab: 'hot', layer: 'top', zoom: 'boost', at: [156.9, 103.15],
+      title: 'The SW pin connects through a 0.5 mm neck, and D1 is reached via the inductor pad',
+      body: [
+        "IC1 pin 1 reaches L1's pad through about 1.4 mm of 0.5 mm trace, and D1's anode hangs off the far side of that pad. The neck carries the full inductor current (≈1.5 A average at 1 A out) and sits inside the switching loop.",
+      ],
+      fix: "Widen the SW connection to pad width and put D1's anode right at IC1 pin 1." },
+    { sev: 'info', tab: 'islands', layer: 'top', zoom: 'boost', at: [164.6, 97.55],
+      title: 'The KiCad-2019 copper is close to the fabricated board but not identical',
+      body: [
+        "The three small EAGLE ground polygons (at IC1 pin 2 and TP4056 pins 1 and 3) came across as zones without a net. KiCad's own fill uses a 0.025 mm copper-to-edge clearance (EAGLE used 0.2 mm) and different thermal reliefs, which adds thin slivers along the board edge that join top ground islands that were separate on the real board.",
+        "For the currents this barely matters (3.8 instead of 4.4 mΩ return path, same loop area). Gerbers regenerated from the KiCad project would not match the 2019 boards, though.",
+      ],
+      fix: "Assign GND to the three imported zones and set the edge clearance to 0.2 mm before refilling." },
+  ];
+
+  const TABS = {
+    hot: {
+      what: [
+        "When the MT3608 switch turns off, the inductor current jumps from the switch (IC1 pin 1 → pin 2) to the diode (D1 → C3). The loop in which current changes abruptly runs SW → D1 → C3 → ground → IC1 pin 2. Its area sets ringing, spikes and radiated noise.",
+        "The light dashed line is the forward path on traces. The moving streaks are the return in the ground copper: amber on the top layer, blue on the bottom. Labels at vias show the share of a 1 A loop current changing layer (↓ top to bottom, ↑ bottom to top).",
+      ],
+      nums: () => [
+        ['Loop area, tightest possible return', '93 mm²'],
+        ['Loop area, DC current spread', '180 mm²'],
+        ['Same parts, C3− tied straight to IC1 pin 2', '49 mm²'],
+        ['Return resistance C3− → IC1 pin 2', `${fmt(D.probes.hot['C3.2'], 1)} mΩ`],
+        ['Return dropping to bottom near J3', '58 %', 'J3 pin + 3 vias'],
+        ['Return rising through IC1 pin 2 vias', '86 %', '3 vias; the rest via C4'],
+      ],
+    },
+    input: {
+      what: [
+        "While the switch is on, the inductor charges from the input capacitors: C1 and C4 → L1 → IC1 pin 1 → pin 2 → ground → back to C1− and C4−. Inductor current is continuous, so this loop carries only the ripple, but IC1's ground pin and C1's ground pad still sit on different top islands.",
+        "C4 shares IC1's island and gets its return on the top layer. C1's return has to go down through IC1's vias and come back up at C1's two vias.",
+      ],
+      nums: () => [
+        ['Ripple return to C1 / C4 (ground path only)', `${pct(D.sinks.input['C1.2'])} / ${pct(D.sinks.input['C4.2'])}`],
+        ['Ground resistance IC1 pin 2 → input caps', `${fmt(D.probes.input['IC1.2'], 1)} mΩ`],
+        ['IC1 IN pin to C1, trace length', '≈18 mm', '0.5 mm wide, 2 vias'],
+        ['Local bypass at IN pin', 'none'],
+      ],
+    },
+    dc: {
+      what: [
+        "At 1 A out (ideal 3.7 V → 5.1 V) the cell supplies 1.5 A. It enters at BAT+ on the bottom layer, feeds L1 and leaves through D1 to the 5 V pad. The load's 1 A comes back at J3, the switch's 0.5 A average leaves IC1 pin 2, and all 1.5 A cross the board to Q1, the protection FET, before returning to the cell on the BAT− trace.",
+        "This is the slow, steady current. Its drops are small, and the battery pair runs as a tight loop.",
+      ],
+      nums: () => [
+        ['Ground drop J3 → Q1 at 1.5 A', `${fmt(D.probes.dc['J3.1'], 1)} mV`],
+        ['R3 ground above IC1 ground', `+${fmt(D.probes.dc['R3.1'] - D.probes.dc['IC1.2'], 2)} mV`],
+        ['Resulting output shift', `${fmt(-7.5 * (D.probes.dc['R3.1'] - D.probes.dc['IC1.2']), 1)} mV`, 'of 5.1 V'],
+        ['BAT+ / BAT− spacing', '2.5 mm', 'side by side on the bottom'],
+      ],
+    },
+    fb: {
+      what: [
+        "The colour shows how the switching return's ground voltage is distributed: 0 % at IC1 pin 2, 100 % at C3's ground pad, contour lines every 10 %. R3, the bottom of the feedback divider, is grounded at 68 % of that drop.",
+        "The divider passes 88 % of any ground shift at R3 to FB, so about 60 % of the return-path noise appears on the 0.6 V feedback node. The dashed line is the 5 V sense path through R2/R3; the dotted line is the FB node back to IC1 pin 3, which carries no current but picks up whatever sits at R3's ground.",
+      ],
+      nums: () => [
+        ['R3 ground, share of C3− → IC1 drop', pct(D.probes.hot['R3.1'] / D.probes.hot['C3.2'])],
+        ['Share reaching FB (× R2/(R2+R3))', pct(0.882 * D.probes.hot['R3.1'] / D.probes.hot['C3.2'])],
+        ['Example spike at FB', '≈0.18 V', '2 nH shared, 1.5 A in 10 ns'],
+        ['FB node copper length', '≈10 mm', '882 Ω source impedance'],
+        ['Vout sense tap', 'D1 cathode', 'upstream of C3'],
+      ],
+    },
+    islands: {
+      what: [
+        "On the top layer the ground pour is three separate islands. A holds IC1's ground pin and C4. B, the main pour, holds the output capacitor C3, the input capacitor C1, the divider ground R3, the GND pad J3 and Q1. C sits under the SW node and connects to nothing but one via.",
+        "They meet only through vias into the bottom pour, which BAT+ and BAT− (highlighted yellow) cut right under the converter. Switch to Bottom to see the strips.",
+      ],
+      nums: () => [
+        ['Island A: IC1 GND + C4', `${D.islands.ic.area} mm²`, '4 vias'],
+        ['Island B: main pour', `${D.islands.main.area} mm²`, '17 vias + plated pins'],
+        ['Island C: under SW node', `${D.islands.sw.area} mm²`, '1 via, no pads'],
+        ['Bottom pour', `${D.islands.bottom.area} mm²`, 'one piece, cut into strips'],
+      ],
+    },
+  };
+
+  function fmt(v, d) { return Number(v).toFixed(d); }
+  function pct(v) { return Math.round(v * 100) + ' %'; }
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  // ------------------------------------------------------------------ copper canvas
+  function buildBoard() {
+    const b = D.board, g = D.grid;
+    let h = '';
+    h += `<rect x="120" y="90" width="60" height="30" fill="var(--pcb-out)"/>`;
+    h += `<rect x="${b.x0}" y="${b.y0}" width="${(b.x1 - b.x0).toFixed(4)}" height="${(b.y1 - b.y0).toFixed(4)}" fill="var(--pcb-board)" stroke="var(--pcb-edge)" stroke-width="0.08"/>`;
+    for (const L of ['B', 'F']) {
+      h += `<g class="L-${L}">`;
+      for (const role in D.islands) {
+        const isl = D.islands[role];
+        if (isl.layer === L) h += `<path class="isl ${role}" fill-rule="evenodd" d="${isl.d}"/>`;
+      }
+      for (const t of D.tracks) {
+        if (t.l !== L) continue;
+        h += `<line class="trk ${L} n-${t.n}" x1="${t.p[0]}" y1="${t.p[1]}" x2="${t.p[2]}" y2="${t.p[3]}" stroke-width="${t.w}"/>`;
+      }
+      for (const p of D.pads) {
+        if (p.L.indexOf(L) < 0) continue;
+        const cls = `pad ${L} n-${p.n}`;
+        if (p.s === 'circle') h += `<circle class="${cls}" cx="${p.x}" cy="${p.y}" r="${p.w / 2}"/>`;
+        else {
+          const rx = p.s === 'oval' ? Math.min(p.w, p.h) / 2 : 0.02;
+          h += `<rect class="${cls}" x="${(p.x - p.w / 2).toFixed(3)}" y="${(p.y - p.h / 2).toFixed(3)}" width="${p.w}" height="${p.h}" rx="${rx}"/>`;
+        }
+        if (p.L === 'FB') h += `<circle class="via-hole" cx="${p.x}" cy="${p.y}" r="${Math.min(p.w, p.h) * 0.27}"/>`;
+      }
+      for (const v of D.vias) h += `<circle class="via" cx="${v.x}" cy="${v.y}" r="${v.d / 2}"/><circle class="via-hole" cx="${v.x}" cy="${v.y}" r="0.175"/>`;
+      h += `</g>`;
+      h += `<image class="H-${L}" id="heat-${L}" x="${g.x0}" y="${g.y0}" width="${g.w / g.s}" height="${g.h / g.s}" preserveAspectRatio="none" href=""/>`;
+    }
+    h += `<g id="iso"></g>`;
+    board.innerHTML = h;
+  }
+
+  // ------------------------------------------------------------------ overlay: bodies, labels, paths, markers
+  let fwdEls = [];
+  function buildOverlay() {
+    overlay.innerHTML = '';
+    el('path', { class: 'fabl', d: D.fab }, overlay);
+    const lab = el('g', {}, overlay);
+    const offs = { S1: [0, 2.0], IC1: [0, 0], R2: [0, -1.0], R3: [0, 1.15], C5: [0, 0], LED1: [0, 0], LED2: [0, 0] };
+    const conn = { J2: '5V', J3: 'GND', J4: 'BAT+', J5: 'BAT−' };
+    for (const p of D.parts) {
+      if (conn[p.ref]) {
+        const t = el('text', { class: 'lbl conn', x: 171.25, y: p.y - 0.55 }, lab);
+        t.textContent = conn[p.ref];
+        continue;
+      }
+      const o = offs[p.ref] || [0, 0];
+      const t = el('text', { class: 'lbl ref', x: p.x + o[0], y: p.y + o[1], 'text-anchor': 'middle', 'dominant-baseline': 'central' }, lab);
+      t.textContent = p.ref;
+    }
+    const g = el('g', { id: 'tabg' }, overlay);
+    renderTabOverlay(g);
+  }
+
+  function renderTabOverlay(g) {
+    g = g || $('#tabg');
+    g.innerHTML = '';
+    fwdEls = [];
+    const tab = state.tab;
+    // forward path
+    for (const seg of PATHS[tab]) {
+      const d = 'M' + seg.p.map((q) => q.join(' ')).join('L');
+      const lay = seg.k === 'B' ? 'onB' : (seg.k === 'F' ? 'onF' : '');
+      const grp = el('g', { class: lay }, g);
+      el('path', { class: 'fwd-under', d, 'data-w': seg.w || 1 }, grp);
+      const cls = seg.k === 'B' ? 'fwd B' : (seg.k === 'part' || seg.k === 'ext' ? 'fwd part' : 'fwd F');
+      const pe = el('path', { class: cls, d, 'data-w': seg.w || 1, 'data-k': seg.k }, grp);
+      fwdEls.push(pe);
+      // arrowheads at the middle of longer straight pieces
+      for (let i = 0; i < seg.p.length - 1; i++) {
+        const [x1, y1] = seg.p[i], [x2, y2] = seg.p[i + 1];
+        const len = Math.hypot(x2 - x1, y2 - y1);
+        if (len < (seg.k === 'part' ? 1.2 : 1.6)) continue;
+        const a = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+        el('path', { class: 'arrowhead ' + (seg.k === 'B' ? 'B' : ''), d: 'M0.5 0L-0.35 -0.38L-0.35 0.38Z',
+          'data-ah': `translate(${((x1 + x2) / 2).toFixed(3)} ${((y1 + y2) / 2).toFixed(3)}) rotate(${a.toFixed(1)})` }, grp);
+      }
+    }
+    if (tab === 'fb') {
+      const d = 'M' + FB_NODE.map((q) => q.join(' ')).join('L');
+      el('path', { class: 'fwd-under', d, 'data-w': 1 }, g);
+      el('path', { class: 'fwd fbnode', d, 'data-w': 1, stroke: 'var(--mark)', 'data-k': 'static' }, g);
+      const t = el('text', { class: 'lbl', x: 160.6, y: 108.15, 'text-anchor': 'middle', 'dominant-baseline': 'central' }, g);
+      t.textContent = 'FB node, 882 Ω';
+    }
+    // external labels
+    for (const l of EXT_LABELS[tab] || []) {
+      const t = el('text', { class: 'lbl dim', x: l.x, y: l.y }, g);
+      t.textContent = l.t;
+    }
+    // via currents
+    const field = FIELD_OF[tab];
+    if (field && tab !== 'fb') {
+      const unit = tab === 'dc' ? 'A' : '%';
+      for (const c of clusterVias(D.viaCur[field])) {
+        const lay = '';
+        const grp = el('g', { class: lay }, g);
+        for (const v of c.members) el('circle', { class: 'viaring', cx: v.x, cy: v.y, r: 0.42 }, grp);
+        const txt = unit === '%' ? `${Math.round(Math.abs(c.i) * 100)}% ${c.i > 0 ? '↓' : '↑'}` : `${Math.abs(c.i).toFixed(2)} A ${c.i > 0 ? '↓' : '↑'}`;
+        const t = el('text', { class: 'vialbl', x: c.x, y: c.y - 0.85, 'text-anchor': 'middle' }, grp);
+        t.textContent = txt;
+      }
+    }
+    // probes
+    for (const p of PROBES[tab] || []) {
+      el('circle', { class: 'probe', cx: p.x, cy: p.y, r: 0.32 }, g);
+      el('line', { x1: p.x, y1: p.y, x2: p.x + p.dx, y2: p.y + p.dy, stroke: 'var(--mark)', 'stroke-width': 0.06 }, g);
+      const t = el('text', { class: 'lbl', x: p.x + p.dx + (p.anchor === 'end' ? -0.2 : 0.2), y: p.y + p.dy, 'text-anchor': p.anchor, 'dominant-baseline': 'central' }, g);
+      t.textContent = p.t;
+    }
+    if (tab === 'islands') {
+      for (const s of ISLAND_TAGS) {
+        const t = el('text', { class: 'lbl big', x: s.x, y: s.y, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'data-big': 1 }, g);
+        t.textContent = s.t;
+        const u = el('text', { class: 'lbl', x: s.x, y: s.y, 'text-anchor': 'middle', 'data-sub': 1 }, g);
+        u.textContent = s.sub;
+      }
+    }
+    // finding markers for this tab
+    FINDINGS.forEach((f, i) => {
+      if (f.tab !== tab) return;
+      const m = el('g', { class: 'marker', id: 'mk-' + i, transform: `translate(${f.at[0]} ${f.at[1]})` }, g);
+      el('circle', { r: 1, 'data-mk': 1 }, m);
+      const t = el('text', { x: 0, y: 0, 'data-mk': 1 }, m);
+      t.textContent = String(i + 1);
+    });
+    applyScale();
+  }
+
+  function clusterVias(list) {
+    const cl = [];
+    for (const v of list) {
+      const near = cl.filter((c) => c.members.some((m) => Math.hypot(m.x - v.x, m.y - v.y) < 2.8));
+      const merged = { members: [v] };
+      for (const c of near) { merged.members.push(...c.members); cl.splice(cl.indexOf(c), 1); }
+      cl.push(merged);
+    }
+    return cl.map((c) => {
+      const i = c.members.reduce((s, m) => s + m.i, 0);
+      const x = c.members.reduce((s, m) => s + m.x, 0) / c.members.length;
+      const y = Math.min(...c.members.map((m) => m.y));
+      return { members: c.members, i, x, y };
+    }).filter((c) => Math.abs(c.i) >= 0.04);
+  }
+
+  // keep strokes and text a constant on-screen size whatever the zoom
+  let mmPerPx = 0.03;
+  const scaleStyle = document.createElement('style');
+  document.head.appendChild(scaleStyle);
+  function applyScale() {
+    const u = mmPerPx;
+    const fs = Math.min(0.95, Math.max(0.36, 12.5 * u));
+    scaleStyle.textContent = `
+      #overlay .lbl, #overlay .vialbl { font-size: ${fs}px; stroke-width: ${3 * u}px; }
+      #overlay .lbl.big { font-size: ${Math.max(1.2, 30 * u)}px; }
+      #overlay .lbl.conn { font-size: ${fs * 1.05}px; font-weight: 500; }
+      #overlay .fabl { stroke-width: ${1 * u}px; }
+      #overlay .fwd { stroke-width: ${2.6 * u}px; stroke-dasharray: ${7 * u}px ${5 * u}px; }
+      #overlay .fwd.B { stroke-dasharray: ${2.5 * u}px ${4 * u}px; }
+      #overlay .fwd.part { stroke-width: ${1.6 * u}px; stroke-dasharray: ${2 * u}px ${3.5 * u}px; }
+      #overlay .fwd.fbnode { stroke-width: ${2.2 * u}px; stroke-dasharray: ${1.5 * u}px ${3 * u}px; }
+      #overlay .fwd-under { stroke-width: ${5.5 * u}px; }
+      #overlay .viaring { stroke-width: ${1.4 * u}px; }
+      #overlay .probe { stroke-width: ${1.5 * u}px; }
+      #overlay .marker circle { stroke-width: ${2 * u}px; }
+      #board .iso { stroke-width: ${1 * u}px; }
+    `;
+    overlay.querySelectorAll('[data-ah]').forEach((a) => {
+      a.setAttribute('transform', `${a.getAttribute('data-ah')} scale(${(7 * u).toFixed(4)})`);
+    });
+    overlay.querySelectorAll('.marker').forEach((m) => {
+      const r = Math.max(0.45, 9 * u);
+      m.querySelector('circle').setAttribute('r', r);
+      m.querySelector('text').style.fontSize = (r * 1.25) + 'px';
+    });
+    overlay.querySelectorAll('[data-sub]').forEach((t) => t.setAttribute('dy', Math.max(1.3, 30 * u) * 0.95));
+    overlay.querySelectorAll('[data-w]').forEach((p) => {
+      const w = parseFloat(p.getAttribute('data-w'));
+      if (w !== 1) p.style.strokeWidth = (2.6 * u * w) + 'px';
+    });
+  }
+
+  // ------------------------------------------------------------------ view / tab state
+  function setView() {
+    const v = VIEWS[state.zoom];
+    const vb = v.join(' ');
+    board.setAttribute('viewBox', vb);
+    overlay.setAttribute('viewBox', vb);
+    stage.style.aspectRatio = `${v[2]} / ${v[3]}`;
+    resize();
+  }
+  function setTab(tab) {
+    state.tab = tab;
+    stage.dataset.tab = tab;
+    document.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+    const f = FIELD_OF[tab];
+    for (const L of ['F', 'B']) {
+      const img = $('#heat-' + L);
+      const src = tab === 'fb' ? D.pot[L] : (f ? D.heat[f][L] : '');
+      if (src) { img.setAttribute('href', src); img.style.display = ''; } else { img.removeAttribute('href'); img.style.display = 'none'; }
+    }
+    const iso = $('#iso');
+    iso.innerHTML = '';
+    if (tab === 'fb') {
+      for (const L of ['B', 'F']) {
+        const g = el('g', { class: 'H-' + L }, iso);
+        for (const c of D.iso[L]) if (c.d) el('path', { class: 'iso', d: c.d }, g);
+      }
+    }
+    renderTabOverlay();
+    renderLegend();
+    renderExplain();
+    resetParticles();
+  }
+  function setLayer(layer) {
+    state.layer = layer;
+    stage.dataset.layer = layer;
+    document.querySelectorAll('[data-layer]').forEach((b) => { if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', String(b.dataset.layer === layer)); });
+    resetParticles();
+  }
+  function setZoom(z) {
+    state.zoom = z;
+    document.querySelectorAll('[data-zoom]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.zoom === z)));
+    setView();
+  }
+
+  function rampCss(stops) { return `linear-gradient(90deg, ${stops.join(', ')})`; }
+  const RAMPS = {
+    F: ['rgba(120,60,20,0)', 'rgb(214,110,40)', 'rgb(250,170,70)', 'rgb(255,236,190)'],
+    B: ['rgba(20,60,120,0)', 'rgb(40,120,214)', 'rgb(90,190,250)', 'rgb(215,245,255)'],
+    P: ['rgb(40,30,90)', 'rgb(110,85,210)', 'rgb(170,150,245)', 'rgb(235,228,255)'],
+  };
+  function sci(v) {
+    if (v >= 0.995) return v.toFixed(v >= 10 ? 0 : 1);
+    if (v >= 0.0995) return v.toFixed(2);
+    return v.toFixed(3);
+  }
+  function renderLegend() {
+    const lg = $('#legend');
+    const tab = state.tab;
+    let h = '';
+    const f = FIELD_OF[tab];
+    if (tab === 'islands') {
+      h += `<span class="sw"><i style="background:var(--isl-a)"></i>A · IC1 GND</span><span class="sw"><i style="background:var(--isl-b)"></i>B · main pour</span><span class="sw"><i style="background:var(--isl-c)"></i>C · under SW</span><span class="sw"><i style="background:var(--cu-bot)"></i>bottom pour</span>`;
+    } else if (tab === 'fb') {
+      h += `<span class="ramp"><span>Ground voltage</span><span class="bar" style="background:${rampCss(RAMPS.P)}"></span><span class="ticks"><span>0 % · IC1</span><span>100 % · C3−</span></span></span>`;
+      h += `<span class="sw"><i class="line"></i>5 V sense path</span><span class="sw"><i style="height:0;border-top:2.5px dotted var(--mark);border-radius:0"></i>FB node</span>`;
+    } else {
+      const m = D.field.meta[f];
+      const lo = Math.pow(10, m.lo), hi = Math.pow(10, m.hi), mid = Math.sqrt(lo * hi);
+      const unit = tab === 'dc' ? 'A/mm at 1 A load' : 'A/mm per 1 A loop';
+      for (const L of ['F', 'B']) {
+        h += `<span class="ramp"><span>${L === 'F' ? 'Top' : 'Bottom'}</span><span class="bar" style="background:${rampCss(RAMPS[L])}"></span><span class="ticks"><span>${sci(lo)}</span><span>${sci(mid)}</span><span>${sci(hi)}</span></span></span>`;
+      }
+      h += `<span>${unit}, log scale</span><span class="sw"><i class="line"></i>forward path</span>`;
+    }
+    lg.innerHTML = h;
+  }
+  function renderExplain() {
+    const t = TABS[state.tab];
+    let h = '<div class="what">' + t.what.map((p) => `<p>${p}</p>`).join('') + '</div><dl>';
+    for (const [k, v, s] of t.nums()) h += `<div><dt>${k}</dt><dd>${v}${s ? `<small>${s}</small>` : ''}</dd></div>`;
+    $('#explain').innerHTML = h + '</dl>';
+  }
+
+  // ------------------------------------------------------------------ findings list
+  const SEV = {
+    high: ['High', '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1L11 10H1Z" fill="currentColor"/></svg>'],
+    med: ['Medium', '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="2" width="8" height="8" transform="rotate(45 6 6)" fill="currentColor"/></svg>'],
+    low: ['Low', '<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>'],
+    info: ['Note', '<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>'],
+  };
+  function renderFindings() {
+    const ol = $('#findings');
+    ol.innerHTML = FINDINGS.map((f, i) => `
+      <li class="finding" id="finding-${i + 1}">
+        <span class="no">${i + 1}</span>
+        <div class="body">
+          <div class="top"><span class="pill ${f.sev}">${SEV[f.sev][1]}${SEV[f.sev][0]}</span><button type="button" class="show" data-f="${i}">Show on board</button></div>
+          <h3>${f.title}</h3>
+          ${f.body.map((p) => `<p>${p}</p>`).join('')}
+          <p class="fix"><b>Fix</b>${f.fix}</p>
+        </div>
+      </li>`).join('');
+    ol.addEventListener('click', (e) => {
+      const b = e.target.closest('.show');
+      if (!b) return;
+      const i = +b.dataset.f, f = FINDINGS[i];
+      setLayer(f.layer); setZoom(f.zoom); setTab(f.tab);
+      $('#viewer').scrollIntoView({ behavior: reduceMotion.matches ? 'auto' : 'smooth', block: 'start' });
+      const mk = $('#mk-' + i);
+      if (mk) { mk.classList.remove('pulse'); void mk.getBBox(); mk.classList.add('pulse'); }
+    });
+  }
+
+  // ------------------------------------------------------------------ flow particles
+  let F8 = null;                       // decoded field bytes
+  const G = D.grid, GW = G.gw, GH = G.gh, CELL = G.g2 / G.s, NCELL = GW * GH;
+  const cdfCache = {};
+  const N = 1500;
+  const px = new Float32Array(N), py = new Float32Array(N), life = new Float32Array(N), lay = new Uint8Array(N);
+  let ctx = canvas.getContext('2d'), cw = 0, ch = 0, dpr = 1;
+  let dashT = 0, last = 0, running = false, visible = true;
+
+  function fieldKey(L) { const f = FIELD_OF[state.tab]; return f ? f + L : null; }
+  function cdf(key) {
+    if (cdfCache[key]) return cdfCache[key];
+    const off = D.field.offsets[key], m = D.field.meta[key.slice(0, -1)];
+    const c = new Float64Array(NCELL);
+    let s = 0;
+    for (let k = 0; k < NCELL; k++) {
+      const v = F8[off + k];
+      if (v) s += Math.pow(10, 0.8 * (m.lo + (v - 1) / 254 * (m.hi - m.lo)));
+      c[k] = s;
+    }
+    return (cdfCache[key] = c);
+  }
+  function activeLayers() { return state.layer === 'both' ? [0, 1] : (state.layer === 'top' ? [0] : [1]); }
+  function spawn(i) {
+    const key = fieldKey(lay[i] ? 'B' : 'F');
+    const c = cdf(key), tot = c[NCELL - 1];
+    if (!tot) { life[i] = -1; return; }
+    const r = Math.random() * tot;
+    let lo = 0, hi = NCELL - 1;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (c[mid] < r) lo = mid + 1; else hi = mid; }
+    px[i] = G.x0 + ((lo % GW) + Math.random()) * CELL;
+    py[i] = G.y0 + (((lo / GW) | 0) + Math.random()) * CELL;
+    life[i] = 0.5 + Math.random() * 1.6;
+  }
+  function resetParticles() {
+    if (!F8) return;
+    ctx.clearRect(0, 0, cw, ch);
+    const L = activeLayers();
+    for (let i = 0; i < N; i++) { lay[i] = L[i % L.length]; if (FIELD_OF[state.tab]) spawn(i); else life[i] = -1; }
+    if (state.paused || reduceMotion.matches) drawQuiver();
+  }
+  function toPx(x, y) {
+    const v = VIEWS[state.zoom];
+    return [(x - v[0]) / v[2] * cw, (y - v[1]) / v[3] * ch];
+  }
+  const COL = ['rgba(255,214,150,0.95)', 'rgba(170,228,255,0.95)'];
+  function step(dt) {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0,0,0,0.16)';
+    ctx.fillRect(0, 0, cw, ch);
+    ctx.globalCompositeOperation = 'source-over';
+    if (!FIELD_OF[state.tab]) return;
+    const v = VIEWS[state.zoom], sx = cw / v[2], sy = ch / v[3];
+    ctx.lineWidth = 1.4 * dpr; ctx.lineCap = 'round';
+    for (const Lr of activeLayers()) {
+      const key = fieldKey(Lr ? 'B' : 'F'), off = D.field.offsets[key];
+      ctx.strokeStyle = COL[Lr];
+      ctx.beginPath();
+      for (let i = 0; i < N; i++) {
+        if (lay[i] !== Lr) continue;
+        if (life[i] <= 0) { spawn(i); continue; }
+        const gx = ((px[i] - G.x0) / CELL) | 0, gy = ((py[i] - G.y0) / CELL) | 0;
+        if (gx < 0 || gy < 0 || gx >= GW || gy >= GH) { spawn(i); continue; }
+        const k = gy * GW + gx, m = F8[off + k];
+        if (!m) { spawn(i); continue; }
+        const a = F8[off + NCELL + k] / 256 * 2 * Math.PI;
+        const sp = 1.0 + 6.5 * Math.pow(m / 255, 1.6);
+        const nx = px[i] + Math.cos(a) * sp * dt, ny = py[i] + Math.sin(a) * sp * dt;
+        ctx.moveTo((px[i] - v[0]) * sx, (py[i] - v[1]) * sy);
+        ctx.lineTo((nx - v[0]) * sx, (ny - v[1]) * sy);
+        px[i] = nx; py[i] = ny; life[i] -= dt;
+      }
+      ctx.stroke();
+    }
+  }
+  function drawQuiver() {
+    ctx.clearRect(0, 0, cw, ch);
+    if (!F8 || !FIELD_OF[state.tab]) return;
+    const v = VIEWS[state.zoom], sx = cw / v[2], sy = ch / v[3];
+    const stepCells = 6, len = 0.42;
+    ctx.lineWidth = 1.2 * dpr; ctx.lineCap = 'round';
+    for (const Lr of activeLayers()) {
+      const off = D.field.offsets[fieldKey(Lr ? 'B' : 'F')];
+      ctx.strokeStyle = COL[Lr]; ctx.fillStyle = COL[Lr];
+      ctx.beginPath();
+      for (let gy = (Lr ? 3 : 0); gy < GH; gy += stepCells) for (let gx = (Lr ? 3 : 0); gx < GW; gx += stepCells) {
+        const k = gy * GW + gx, m = F8[off + k];
+        if (m < 110) continue;
+        const a = F8[off + NCELL + k] / 256 * 2 * Math.PI;
+        const x = G.x0 + (gx + 0.5) * CELL, y = G.y0 + (gy + 0.5) * CELL;
+        const c = Math.cos(a), s = Math.sin(a);
+        const x1 = (x - c * len - v[0]) * sx, y1 = (y - s * len - v[1]) * sy, x2 = (x + c * len - v[0]) * sx, y2 = (y + s * len - v[1]) * sy;
+        ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        const hl = 0.22 * sx;
+        ctx.moveTo(x2, y2); ctx.lineTo(x2 - hl * Math.cos(a - 0.5), y2 - hl * Math.sin(a - 0.5));
+        ctx.moveTo(x2, y2); ctx.lineTo(x2 - hl * Math.cos(a + 0.5), y2 - hl * Math.sin(a + 0.5));
+      }
+      ctx.stroke();
+    }
+  }
+  function frame(t) {
+    if (!running) return;
+    const dt = Math.min(0.05, (t - last) / 1000 || 0.016);
+    last = t;
+    if (F8) step(dt);
+    dashT += dt;
+    const u = mmPerPx;
+    for (const p of fwdEls) p.style.strokeDashoffset = (-(dashT * 18 * u) % (24 * u)) + 'px';
+    requestAnimationFrame(frame);
+  }
+  function startLoop() {
+    const want = visible && !state.paused && !reduceMotion.matches && !document.hidden;
+    if (want && !running) { running = true; last = performance.now(); requestAnimationFrame(frame); }
+    if (!want && running) { running = false; drawQuiver(); }
+  }
+  function resize() {
+    const r = stage.getBoundingClientRect();
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    cw = Math.max(1, Math.round(r.width * dpr)); ch = Math.max(1, Math.round(r.height * dpr));
+    canvas.width = cw; canvas.height = ch;
+    mmPerPx = VIEWS[state.zoom][2] / Math.max(1, r.width);
+    applyScale();
+    if (state.paused || reduceMotion.matches) drawQuiver();
+  }
+
+  // ------------------------------------------------------------------ hover probe
+  function boardXY(e) {
+    const r = stage.getBoundingClientRect(), v = VIEWS[state.zoom];
+    return [v[0] + (e.clientX - r.left) / r.width * v[2], v[1] + (e.clientY - r.top) / r.height * v[3], e.clientX - r.left, e.clientY - r.top];
+  }
+  function sample(L, x, y) {
+    const key = fieldKey(L);
+    if (!F8 || !key) return null;
+    const gx = ((x - G.x0) / CELL) | 0, gy = ((y - G.y0) / CELL) | 0;
+    if (gx < 0 || gy < 0 || gx >= GW || gy >= GH) return null;
+    const m = F8[D.field.offsets[key] + gy * GW + gx];
+    if (!m) return null;
+    const meta = D.field.meta[key.slice(0, -1)];
+    return Math.pow(10, meta.lo + (m - 1) / 254 * (meta.hi - meta.lo));
+  }
+  stage.addEventListener('pointermove', (e) => {
+    const [x, y, cx, cy] = boardXY(e);
+    const layers = state.layer === 'both' ? ['F', 'B'] : [state.layer === 'top' ? 'F' : 'B'];
+    let pad = null;
+    for (const p of D.pads) {
+      if (!layers.some((L) => p.L.indexOf(L) >= 0)) continue;
+      if (Math.abs(x - p.x) <= p.w / 2 && Math.abs(y - p.y) <= p.h / 2) { pad = p; break; }
+    }
+    const lines = [];
+    if (pad) lines.push(`${pad.ref} pin ${pad.pin} · ${pad.net}`);
+    if (FIELD_OF[state.tab] && state.tab !== 'fb') {
+      for (const L of layers) {
+        const j = sample(L, x, y);
+        if (j) lines.push(`${L === 'F' ? 'top' : 'bottom'} ground: ${sci(j)} A/mm`);
+      }
+    }
+    $('#coord').textContent = `x ${x.toFixed(2)} mm · y ${y.toFixed(2)} mm`;
+    if (!lines.length) { tip.hidden = true; return; }
+    tip.innerHTML = lines.join('<br>');
+    tip.hidden = false;
+    const r = stage.getBoundingClientRect();
+    tip.style.left = Math.min(cx, r.width - 230) + 'px';
+    tip.style.top = Math.min(cy, r.height - 50) + 'px';
+  });
+  stage.addEventListener('pointerleave', () => { tip.hidden = true; });
+
+  // ------------------------------------------------------------------ wiring
+  document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  document.querySelectorAll('button[data-layer]').forEach((b) => b.addEventListener('click', () => setLayer(b.dataset.layer)));
+  document.querySelectorAll('button[data-zoom]').forEach((b) => b.addEventListener('click', () => setZoom(b.dataset.zoom)));
+  const mot = $('#motion');
+  mot.addEventListener('click', () => {
+    state.paused = !state.paused;
+    mot.setAttribute('aria-pressed', String(state.paused));
+    mot.textContent = state.paused ? 'Play flow' : 'Pause flow';
+    if (state.paused) { running = false; drawQuiver(); } else { ctx.clearRect(0, 0, cw, ch); startLoop(); }
+  });
+  if (reduceMotion.matches) { mot.hidden = true; }
+  new ResizeObserver(() => resize()).observe(stage);
+  new IntersectionObserver((es) => { visible = es[0].isIntersecting; startLoop(); }).observe(stage);
+  document.addEventListener('visibilitychange', startLoop);
+
+  buildBoard();
+  buildOverlay();
+  renderFindings();
+  const h = (location.hash || '').slice(1);
+  setView();
+  setTab(TABS[h] ? h : 'hot');
+
+  (async function loadField() {
+    try {
+      if (!('DecompressionStream' in window)) return;
+      const bin = Uint8Array.from(atob(D.field.b64), (c) => c.charCodeAt(0));
+      const stream = new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'));
+      F8 = new Uint8Array(await new Response(stream).arrayBuffer());
+      resetParticles();
+      startLoop();
+    } catch (err) {
+      console.warn('flow field unavailable', err);
+    }
+  })();
+  startLoop();
+})();
+</script>
