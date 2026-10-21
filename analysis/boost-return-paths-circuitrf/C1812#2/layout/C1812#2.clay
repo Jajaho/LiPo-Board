@@ -1,0 +1,174 @@
+{
+	"FormatVersion": 1,
+	"DbuPerMicron": 1000,
+	"DisplayUnit": "Um",
+	"SnapDbu": 0,
+	"AngleMode": "AnyAngle",
+	"TechRef": "../../LiPo-BoardV1-2019.ctech",
+	"Pins": [
+		{
+			"Name": "1",
+			"X": -1950000,
+			"Y": 0,
+			"WidthDbu": 1900000,
+			"OutwardDeg": 90,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"Name": "2",
+			"X": 1950000,
+			"Y": 0,
+			"WidthDbu": 1900000,
+			"OutwardDeg": 90,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		}
+	],
+	"Shapes": [
+		{
+			"$type": "Poly",
+			"Xy": [
+				-300000, -400100,
+				300000, -400100,
+				300000, 400100,
+				-300000, 400100
+			],
+			"Layer": {
+				"Layer": -3,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-2973000, -1983000,
+				-2973000, 1983000
+			],
+			"Width": 50800,
+			"End": "Round",
+			"Layer": {
+				"Layer": 9,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				2973000, -1983000,
+				-2973000, -1983000
+			],
+			"Width": 50800,
+			"End": "Round",
+			"Layer": {
+				"Layer": 9,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-2973000, 1983000,
+				2973000, 1983000
+			],
+			"Width": 50800,
+			"End": "Round",
+			"Layer": {
+				"Layer": 9,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				2973000, 1983000,
+				2973000, -1983000
+			],
+			"Width": 50800,
+			"End": "Round",
+			"Layer": {
+				"Layer": 9,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-1447800, -1600200,
+				1473200, -1600200
+			],
+			"Width": 101600,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-1473200, 1600200,
+				1473200, 1600200
+			],
+			"Width": 101600,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Poly",
+			"Xy": [
+				-2387600, -1651000,
+				-1437600, -1651000,
+				-1437600, 1649000,
+				-2387600, 1649000
+			],
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Poly",
+			"Xy": [
+				1447800, -1651000,
+				2397800, -1651000,
+				2397800, 1649000,
+				1447800, 1649000
+			],
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Rect",
+			"X1": -2900000,
+			"Y1": -1700000,
+			"X2": -1000000,
+			"Y2": 1700000,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Rect",
+			"X1": 1000000,
+			"Y1": -1700000,
+			"X2": 2900000,
+			"Y2": 1700000,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		}
+	],
+	"Instances": []
+}

@@ -1,0 +1,27 @@
+{
+  "FormatVersion": 1,
+  "Name": "GND current spreading",
+  "ArtworkCellRef": "../gnd-solve-fine/layout/gnd-solve-fine.clay",
+  "ReferenceNet": "REF",
+  "Settings": {
+    "CopperTemperatureCelsius": 20,
+    "ViaPlatingThicknessMicrometres": 20,
+    "ViaTemperatureRiseCelsius": 10
+  },
+  "Rails": [
+    {
+      "Name": "GND",
+      "NetName": "GND",
+      "ReferenceLayer": 20,
+      "ReferenceLayerDatatype": 0,
+      "ReferenceExtent": "AsImported",
+      "BandStartHz": 100000,
+      "BandStopHz": 100000000,
+      "BandPoints": 31,
+      "BandLogarithmic": true,
+      "Sources": [],
+      "Loads": [],
+      "Parts": []
+    }
+  ]
+}

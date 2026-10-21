@@ -1,0 +1,327 @@
+{
+	"FormatVersion": 1,
+	"DbuPerMicron": 1000,
+	"DisplayUnit": "Um",
+	"SnapDbu": 0,
+	"AngleMode": "AnyAngle",
+	"TechRef": "../../LiPo-BoardV1-2019.ctech",
+	"Pins": [
+		{
+			"Name": "1",
+			"X": -1250000,
+			"Y": 950000,
+			"WidthDbu": 600000,
+			"OutwardDeg": 0,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"Name": "2",
+			"X": -1250000,
+			"Y": 0,
+			"WidthDbu": 600000,
+			"OutwardDeg": 0,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"Name": "3",
+			"X": -1250000,
+			"Y": -950000,
+			"WidthDbu": 600000,
+			"OutwardDeg": 0,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"Name": "4",
+			"X": 1250000,
+			"Y": -950000,
+			"WidthDbu": 600000,
+			"OutwardDeg": 0,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"Name": "5",
+			"X": 1250000,
+			"Y": 0,
+			"WidthDbu": 600000,
+			"OutwardDeg": 0,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"Name": "6",
+			"X": 1250000,
+			"Y": 950000,
+			"WidthDbu": 600000,
+			"OutwardDeg": 0,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		}
+	],
+	"Shapes": [
+		{
+			"$type": "Path",
+			"Xy": [
+				-1850000, 1600000,
+				-650000, 1600000
+			],
+			"Width": 200000,
+			"End": "Round",
+			"Layer": {
+				"Layer": 5,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-300000, 1450000,
+				300000, 1450000
+			],
+			"Width": 200000,
+			"End": "Round",
+			"Layer": {
+				"Layer": 5,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-300000, -1450000,
+				-300000, 1450000
+			],
+			"Width": 200000,
+			"End": "Round",
+			"Layer": {
+				"Layer": 5,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				300000, 1450000,
+				300000, -1450000
+			],
+			"Width": 200000,
+			"End": "Round",
+			"Layer": {
+				"Layer": 5,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				300000, -1450000,
+				-300000, -1450000
+			],
+			"Width": 200000,
+			"End": "Round",
+			"Layer": {
+				"Layer": 5,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-2100000, 1750000,
+				2100000, 1750000
+			],
+			"Width": 50000,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-2100000, -1750000,
+				-2100000, 1750000
+			],
+			"Width": 50000,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-800000, 1450000,
+				800000, 1450000
+			],
+			"Width": 100000,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-800000, 500000,
+				150000, 1450000
+			],
+			"Width": 100000,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				-800000, -1450000,
+				-800000, 1450000
+			],
+			"Width": 100000,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				800000, 1450000,
+				800000, -1450000
+			],
+			"Width": 100000,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				800000, -1450000,
+				-800000, -1450000
+			],
+			"Width": 100000,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				2100000, 1750000,
+				2100000, -1750000
+			],
+			"Width": 50000,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Path",
+			"Xy": [
+				2100000, -1750000,
+				-2100000, -1750000
+			],
+			"Width": 50000,
+			"End": "Round",
+			"Layer": {
+				"Layer": -2,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Rect",
+			"X1": -1850000,
+			"Y1": 650000,
+			"X2": -650000,
+			"Y2": 1250000,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Rect",
+			"X1": -1850000,
+			"Y1": -300000,
+			"X2": -650000,
+			"Y2": 300000,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Rect",
+			"X1": -1850000,
+			"Y1": -1250000,
+			"X2": -650000,
+			"Y2": -650000,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Rect",
+			"X1": 650000,
+			"Y1": -1250000,
+			"X2": 1850000,
+			"Y2": -650000,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Rect",
+			"X1": 650000,
+			"Y1": -300000,
+			"X2": 1850000,
+			"Y2": 300000,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		},
+		{
+			"$type": "Rect",
+			"X1": 650000,
+			"Y1": 650000,
+			"X2": 1850000,
+			"Y2": 1250000,
+			"Layer": {
+				"Layer": 1,
+				"Datatype": 0
+			}
+		}
+	],
+	"Instances": []
+}
