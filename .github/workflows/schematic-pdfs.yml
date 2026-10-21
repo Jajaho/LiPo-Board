@@ -1,0 +1,31 @@
+name: Schematic PDFs
+
+on:
+  push:
+    paths:
+      - 'src/kicad/**'
+      - 'src/kicad-2019/**'
+      - '.github/workflows/schematic-pdfs.yml'
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    container:
+      image: kicad/kicad:10.0
+      # The image defaults to a non-root user that can't write to the mounted workspace
+      options: --user root
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Export schematics
+        run: |
+          mkdir -p out
+          kicad-cli sch export pdf -o out/LiPo-BoardV1_schematic.pdf src/kicad/LiPo-BoardV1.kicad_sch
+          kicad-cli sch export pdf -o out/LiPo-BoardV1-2019_schematic.pdf src/kicad-2019/LiPo-BoardV1-2019.kicad_sch
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: schematic-pdfs
+          path: out/*.pdf
+          if-no-files-found: error

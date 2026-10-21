@@ -9,7 +9,7 @@
 		(date "2026-10-21")
 		(rev "1")
 		(company "Jakob Holz")
-		(comment 1 "Recreated from 2019 Eagle project files.")
+		(comment 1 "Recreated from Eagle design files as of 01/2019.")
 		(comment 2 "This project represents the design at time of manufacture.")
 	)
 	(lib_symbols
