@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "lipo-cRF": {
+      "type": "stdio",
+      "command": "C:\\Users\\jajaho\\AppData\\Local\\Programs\\circuitRF\\circuitRF.exe",
+      "args": [
+        "serve",
+        "--root",
+        "C:\\Users\\jajaho\\Repositories\\LiPo-Board"
+      ],
+      "env": {}
+    }
+  }
+}
