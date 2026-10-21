@@ -7,7 +7,7 @@ Open `boost-return-paths.html` in a browser for the interactive result: animated
 ## Run it
 
 ```sh
-uv run analysis/boost-return-paths/run_all.py
+uv run analysis/boost-return-paths-python/run_all.py
 ```
 
 The run takes about 20 s, needs numpy, scipy, pillow and contourpy (declared inline, so `uv` installs them), and writes intermediate arrays to `work/` (ignored by git). Each step can also be run on its own in this order: `connectivity.py`, `solve.py`, `loop_area.py`, `gen_viz.py`.
