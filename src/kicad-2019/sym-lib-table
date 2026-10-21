@@ -1,0 +1,4 @@
+(sym_lib_table
+	(version 7)
+	(lib (name "LiPo-BoardV1-2019-eagle-import") (type "KiCad") (uri "${KIPRJMOD}/LiPo-BoardV1-2019-eagle-import.kicad_sym") (options "") (descr ""))
+)
