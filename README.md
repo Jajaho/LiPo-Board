@@ -12,10 +12,12 @@ You can check out the post on my website [here](https://jajaho.github.io//projec
 The project was originally designed and manufactured in 01/2019 using Eagle ECAD. Later they have been converted to KiCad to preserve them. 
 The KiCad design files represent the original files as closely as possible.
 
-- `src/eagle-2019` - The original design files which produced the production files of the manufactured PCB are in
-- `src/kicad-2019` - Converted design files which produced the production files of the manufactured PCB are in
+- `src/eagle-2019` - The original design files which produced the production files of the manufactured PCB.
+- `src/kicad-2019` - Converted design files which produced the production files of the manufactured PCB.
 
 The original production files are archived in `outputs/LiPo-BoardV1_2019-01-18.zip`.
+Reexporting `src/eagle-2019` to gerber using the `template_2_layer.cam` in the modern Autodesk Fusion 2705.1.25 x86_64 today produces very similar geometry, expcept for the  ground pad spokes are 0.25 mm (10 mil) wide instead of 20 mil in the original files and the clearance corners are chamfered instead of rounded.
+`src/kicad-2019` needed some hand adjustments aswell. Trace clearances, board clearance and copper pour nets where wrong after the automatic import. It is now mostly correct.
 
 The faulty wiring of the enable switch was discovered only after the board has been manufactured. Consequently this mistake has been corrected in the schematic but the board has not been rerouted.
 
