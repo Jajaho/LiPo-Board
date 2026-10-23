@@ -7,9 +7,11 @@ import connectivity
 import gen_viz
 import loop_area
 import solve
+import solve_ac
 
 if __name__ == '__main__':
     connectivity.main()
     solve.main()
+    solve_ac.main()
     loop_area.main()
     gen_viz.main()

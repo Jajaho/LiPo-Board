@@ -20,6 +20,7 @@ GERBER_MEMBERS = {'F': 'CAMOutputs/GerberFiles/copper_top.gbr', 'B': 'CAMOutputs
 WORK = HERE / 'work'
 TEMPLATE = HERE / 'template.html'
 PAGE = HERE / 'boost-return-paths.html'
+PAGE_AC = HERE / 'boost-return-paths-ac.html'
 
 # raster grid
 S = 20                              # cells per mm

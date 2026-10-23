@@ -120,7 +120,7 @@ a { color: var(--accent); }
 .stage svg, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .stage canvas { pointer-events: none; }
 #overlay { pointer-events: none; }
-.tip { position: absolute; pointer-events: none; background: rgba(11,16,14,0.92); color: var(--pcb-ink); border: 1px solid var(--pcb-edge);
+.tip { position: absolute; pointer-events: none; background: var(--tip-bg, rgba(11,16,14,0.92)); color: var(--pcb-ink); border: 1px solid var(--pcb-edge);
   border-radius: 4px; padding: 0.35rem 0.55rem; font: 0.8rem/1.35 var(--font-data); white-space: nowrap; transform: translate(12px, 12px); z-index: 3; }
 .stage-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; padding: 0.55rem 0.2rem 0.1rem; color: var(--pcb-ink-2); font: 0.8rem/1.4 var(--font-data); }
 .legend { display: flex; flex-wrap: wrap; gap: 0.6rem 1.6rem; align-items: center; }
@@ -135,15 +135,17 @@ a { color: var(--accent); }
 /* 3D view: WebGL canvas on the same dark CAD panel */
 .v3d .section-head p { color: var(--ink-2); font-size: 0.95rem; }
 .stage3d { position: relative; width: 100%; aspect-ratio: 16 / 8.4; min-height: 340px; border-radius: 4px; overflow: hidden;
-  background: radial-gradient(120% 90% at 50% 35%, #15221d 0%, var(--pcb-out) 70%); }
+  background: var(--stage3d-bg, radial-gradient(120% 90% at 50% 35%, #15221d 0%, var(--pcb-out) 70%)); }
 .stage3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
 .stage3d canvas:active { cursor: grabbing; }
 .gl-msg[hidden] { display: none; }
 .gl-msg { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 1rem; text-align: center; color: var(--pcb-ink-2); font: 0.85rem/1.4 var(--font-data); pointer-events: none; }
 .ramp.wide { grid-template-columns: auto 220px; }
-.sw i.via3 { width: 7px; height: 14px; background: var(--mark); }
-.sw i.sl3 { height: 0; border-top: 2.5px solid #fff3d6; border-radius: 0; }
-.sw i.fwd3 { height: 0; border-top: 3px dashed #eaf6ff; border-radius: 0; }
+.sw i.via3 { width: 7px; height: 14px; }
+.sw i.sl3 { height: 0; border-top: 2.5px solid; border-radius: 0; }
+.sw i.fwd3 { height: 0; border-top: 3px dashed; border-radius: 0; }
+.sw i.loop3 { position: relative; height: 0; border-top: 3px solid; border-radius: 0; margin-right: 7px; }
+.sw i.loop3::after { content: ""; position: absolute; right: -8px; top: -6.5px; border: 5px solid transparent; border-left: 9px solid; border-right: 0; }
 @media (max-width: 560px) { .stage3d { aspect-ratio: 4 / 3.6; } .ramp.wide { grid-template-columns: auto 150px; } }
 
 /* explanation under the board */
@@ -234,11 +236,162 @@ footer { color: var(--ink-3); font-size: 0.85rem; }
   .finding .no { padding: 0; }
   .fact dd.big { font-size: 1.6rem; }
 }
+
+/* ETH figure styles: white paper, Arial/Helvetica, ETH Blue as the accent, square corners, figures framed by a hairline.
+   "eth" colours the two layers ETH Blue (top) and ETH Red (bottom); "print" is greyscale with ETH Blue for the bottom layer. */
+:root:is([data-style="eth"], [data-style="print"]) {
+  color-scheme: light;
+  --bg: #ffffff; --surface: #ffffff; --ink: #1f1f1f; --ink-2: #4a4a4a; --ink-3: #6f6f6f; --rule: #d6d6d6;
+  --accent: #215caf; --accent-soft: #e9eff7;
+  --sev-high: #b7352d; --sev-med: #8e6713; --sev-low: #215caf; --sev-info: #6f6f6f;
+  --sev-high-bg: #f8ebea; --sev-med-bg: #f4f0e7; --sev-low-bg: #e9eff7; --sev-info-bg: #f1f1f1;
+  --pcb-out: #ffffff; --pcb-board: #fbfbfb; --pcb-edge: #8c8c8c;
+  --cu-top: #cdcdcd; --cu-top-hi: #8a8a8a; --cu-bot: #e2e2e2; --cu-bot-hi: #a9a9a9; --cu-pad: #bcbcbc;
+  --fab: #6f6f6f; --pcb-label: #1f1f1f; --pcb-label-halo: #ffffff;
+  --flow: #1f1f1f; --flow-bot: #5c5c5c;
+  --isl-a: #215caf; --isl-b: #627313; --isl-c: #a30774;
+  --mark: #b7352d; --mark-ink: #ffffff; --iso: #1f1f1f; --via: #a3a3a3; --bat-hi: #8e6713;
+  --pcb-ink: #1f1f1f; --pcb-ink-2: #6f6f6f;
+  --tip-bg: rgba(255,255,255,0.97); --stage3d-bg: #ffffff;
+  --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+:root:is([data-style="eth"], [data-style="print"]) body { font-size: 1rem; line-height: 1.5; }
+:root:is([data-style="eth"], [data-style="print"]) .masthead { border-top: 5px solid var(--accent); padding-top: 1.1rem; }
+:root:is([data-style="eth"], [data-style="print"]) h1 { font-weight: 700; letter-spacing: -0.015em; font-size: clamp(1.9rem, 3.6vw, 2.7rem); }
+:root:is([data-style="eth"], [data-style="print"]) h2 { font-weight: 700; font-size: 1.4rem; letter-spacing: -0.005em; }
+:root:is([data-style="eth"], [data-style="print"]) h3 { font-weight: 700; font-size: 1.1rem; }
+:root:is([data-style="eth"], [data-style="print"]) .eyebrow { font-family: var(--font-body); font-weight: 700; letter-spacing: 0.06em; color: var(--accent); }
+:root:is([data-style="eth"], [data-style="print"]) :is(.tab, .tab3, .btn, .seg, .show, .facts, .stage-wrap, .stage3d, .pill) { border-radius: 0; }
+:root:is([data-style="eth"], [data-style="print"]) :is(.tab, .tab3)[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+:root:is([data-style="eth"], [data-style="print"]) .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+:root:is([data-style="eth"], [data-style="print"]) .fact dd.big { font-weight: 700; color: var(--accent); }
+:root:is([data-style="eth"], [data-style="print"]) .stage-wrap { background: #ffffff; border: 1px solid var(--rule); }
+:root:is([data-style="eth"], [data-style="print"]) .finding .no { font-weight: 700; color: var(--accent); }
+:root:is([data-style="eth"], [data-style="print"]) .tip { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+:root:is([data-style="eth"], [data-style="print"]) :is(#viewer-h, #v3d-h)::before { color: var(--accent); margin-right: 0.45em; }
+:root:is([data-style="eth"], [data-style="print"]) #viewer-h::before { content: "Figure 1"; }
+:root:is([data-style="eth"], [data-style="print"]) #v3d-h::before { content: "Figure 2"; }
+:root:is([data-style="eth"], [data-style="print"]) .stage-foot { font-family: var(--font-body); font-size: 0.84rem; }
+.mast-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.6rem 1rem; }
 </style>
+
+<script>
+// ------------------------------------------------------------------ figure styles shared by the 2D and 3D views
+// A style sets the page tokens (CSS, keyed on data-style on <html>) and the colours the two scripts draw with.
+// Ramps colour a 0..1 scalar: colour from the stops, opacity a·t^g so low current lets the copper show through.
+(function () {
+  const sans = '"Helvetica Neue", Helvetica, Arial, sans-serif', mono = '"IBM Plex Mono", ui-monospace, monospace';
+  const ETH_BLUE = [[0, [214, 225, 241]], [0.4, [137, 168, 213]], [0.75, [33, 92, 175]], [1, [14, 40, 80]]];
+  const ETH_RED = [[0, [240, 214, 211]], [0.4, [214, 137, 130]], [0.75, [183, 53, 45]], [1, [92, 24, 20]]];
+  const GREY = [[0, [226, 226, 226]], [0.4, [168, 168, 168]], [0.75, [92, 92, 92]], [1, [24, 24, 24]]];
+  const STYLES = {
+    eth: {
+      ramps: {
+        F: { stops: ETH_BLUE, a: 0.95, g: 1.2 },
+        B: { stops: ETH_RED, a: 0.95, g: 1.2 },
+        P: { stops: [[0, [214, 234, 239]], [0.45, [110, 178, 194]], [0.8, [0, 120, 148]], [1, [0, 60, 74]]], a: 0.9, g: 1 },
+      },
+      flow: ['rgba(255,255,255,0.95)', 'rgba(255,244,226,0.95)'],
+      d3: {
+        bg: '#ffffff', grid: ['#d9d9d9', '#ececec'], core: '#8c8c8c', coreA: 0.06, edge: '#a6a6a6', barrel: '#bdbdbd', barrelA: 0.5, hole: '#ffffff',
+        hemi: ['#ffffff', '#c8c8c8'], pour: ['rgba(165,165,165,0.30)', 'rgba(205,205,205,0.96)'], cu: ['rgb(140,140,140)', 'rgb(170,170,170)'],
+        heat: ETH_BLUE, line: '#b7352d', fwd: '#1f1f1f', under: '#ffffff', via: '#8e6713', viaGlow: '#000000',
+        layerLbl: '#6f6f6f', partLbl: '#1f1f1f', halo: 'rgba(255,255,255,0.94)', title: '#1f1f1f', sub: '#6f6f6f', rule: '#215caf',
+        font: sans, fontW: 700, mono, lblFont: sans,
+      },
+    },
+    print: {
+      ramps: {
+        F: { stops: GREY, a: 0.95, g: 1.2 },
+        B: { stops: ETH_BLUE, a: 0.95, g: 1.2 },
+        P: { stops: GREY, a: 0.9, g: 1 },
+      },
+      flow: ['rgba(255,255,255,0.95)', 'rgba(255,255,255,0.95)'],
+      d3: {
+        bg: '#ffffff', grid: ['#d9d9d9', '#ececec'], core: '#8c8c8c', coreA: 0.06, edge: '#a6a6a6', barrel: '#bdbdbd', barrelA: 0.5, hole: '#ffffff',
+        hemi: ['#ffffff', '#c8c8c8'], pour: ['rgba(165,165,165,0.30)', 'rgba(205,205,205,0.96)'], cu: ['rgb(140,140,140)', 'rgb(170,170,170)'],
+        heat: GREY, line: '#215caf', fwd: '#b7352d', under: '#ffffff', via: '#215caf', viaGlow: '#000000',
+        layerLbl: '#6f6f6f', partLbl: '#1f1f1f', halo: 'rgba(255,255,255,0.94)', title: '#1f1f1f', sub: '#6f6f6f', rule: '#215caf',
+        font: sans, fontW: 700, mono, lblFont: sans,
+      },
+    },
+    cad: {
+      ramps: {
+        F: { stops: [[0, [120, 60, 20]], [0.45, [214, 110, 40]], [0.8, [250, 170, 70]], [1, [255, 236, 190]]], a: 0.92, g: 1.6 },
+        B: { stops: [[0, [20, 60, 120]], [0.45, [40, 120, 214]], [0.8, [90, 190, 250]], [1, [215, 245, 255]]], a: 0.92, g: 1.6 },
+        P: { stops: [[0, [40, 30, 90]], [0.45, [110, 85, 210]], [0.8, [170, 150, 245]], [1, [235, 228, 255]]], a: 0.85, g: 1 },
+      },
+      flow: ['rgba(255,214,150,0.95)', 'rgba(170,228,255,0.95)'],
+      d3: {
+        bg: '#0b100e', grid: ['#22332c', '#16211d'], core: '#3f7a5c', coreA: 0.12, edge: '#6f9483', barrel: '#8d9a93', barrelA: 0.85, hole: '#050807',
+        hemi: ['#e6efe9', '#1b2621'], pour: ['rgba(150,112,70,0.40)', 'rgba(150,112,70,0.96)'], cu: ['rgba(196,152,98,0.78)', 'rgba(196,152,98,0.97)'],
+        heat: [[0, [92, 22, 74]], [0.3, [168, 32, 66]], [0.55, [230, 88, 40]], [0.78, [252, 172, 60]], [1, [255, 247, 218]]],
+        line: '#fff3d6', fwd: '#eaf6ff', under: '#0b100e', via: '#ffd166', viaGlow: '#ff9a1f',
+        layerLbl: '#e8c79a', partLbl: '#dfe9e3', halo: 'rgba(8,12,10,0.92)', title: '#eef4f0', sub: '#a9b9b1', rule: '#25312c',
+        font: '"Barlow Semi Condensed", Arial, sans-serif', fontW: 600, mono,
+      },
+    },
+  };
+  function stopsAt(stops, t) {
+    t = Math.max(0, Math.min(1, t));
+    for (let i = 1; i < stops.length; i++) {
+      const [b, cb] = stops[i];
+      if (t <= b) {
+        const [a, ca] = stops[i - 1], u = (t - a) / (b - a);
+        return [0, 1, 2].map((j) => ca[j] + (cb[j] - ca[j]) * u);
+      }
+    }
+    return stops[stops.length - 1][1];
+  }
+  let cur = 'eth';
+  try {
+    const k = new URLSearchParams(location.search).get('style') || localStorage.getItem('rp-style');
+    if (STYLES[k]) cur = k;
+  } catch (_) { /* storage blocked: keep the default */ }
+  document.documentElement.dataset.style = cur;
+  window.RP = {
+    style: () => STYLES[cur],
+    styleId: () => cur,
+    stopsAt,
+    rampCss(r) {                                     // legend bar for a ramp, opacity included
+      const s = [];
+      for (let i = 0; i <= 10; i++) { const t = i / 10, c = stopsAt(r.stops, t); s.push(`rgba(${c.map(Math.round).join(',')},${(r.a * Math.pow(t, r.g)).toFixed(3)}) ${t * 100}%`); }
+      return `linear-gradient(90deg, ${s.join(', ')})`;
+    },
+    lut(r) {                                         // 256 RGBA entries for colouring a grey map
+      const o = new Uint8ClampedArray(1024);
+      for (let v = 0; v < 256; v++) { const t = v / 255, c = stopsAt(r.stops, t); o.set([c[0], c[1], c[2], 255 * r.a * Math.pow(t, r.g)], v * 4); }
+      return o;
+    },
+    setStyle(k) {
+      if (!STYLES[k] || k === cur) return;
+      cur = k;
+      document.documentElement.dataset.style = k;
+      try { localStorage.setItem('rp-style', k); } catch (_) { /* not remembered */ }
+      document.querySelectorAll('#style-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.style === k)));
+      document.dispatchEvent(new CustomEvent('rp:style', { detail: k }));
+    },
+  };
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#style-seg button').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.style === cur));
+      b.addEventListener('click', () => window.RP.setStyle(b.dataset.style));
+    });
+  });
+})();
+</script>
 
 <main class="page">
   <header class="masthead">
-    <p class="eyebrow">Layout review · LiPo-Board V1, 2019 · MT3608 boost stage · as-fabricated copper</p>
+    <div class="mast-top">
+      <p class="eyebrow">Layout review · LiPo-Board V1, 2019 · MT3608 boost stage · as-fabricated copper</p>
+      <div class="seg" role="group" aria-label="Figure style" id="style-seg">
+        <button type="button" data-style="eth" aria-pressed="false">ETH</button>
+        <button type="button" data-style="print" aria-pressed="false">ETH print</button>
+        <button type="button" data-style="cad" aria-pressed="false">Dark CAD</button>
+      </div>
+    </div>
     <h1>Where the boost converter's currents actually flow</h1>
     <p class="lede">The switching loop is routed through the bottom layer because the output capacitor and the MT3608 ground pin sit on two separate top-layer copper islands. The feedback divider's ground sits in the middle of that detour. DC drops are negligible; the problems are loop area and ground noise at the 1.2&nbsp;MHz switching edges.</p>
     <dl class="facts">
@@ -293,7 +446,7 @@ footer { color: var(--ink-3); font-size: 0.85rem; }
     <div class="viewer-head">
       <div class="section-head" style="margin:0">
         <h2 id="v3d-h">Both layers in 3D</h2>
-        <p>Drag to orbit, scroll to zoom, right-drag to pan. Colour is ground current density on one scale for both layers; the yellow barrels are vias carrying the return between them.</p>
+        <p>Drag to orbit, scroll to zoom, right-drag to pan. Colour is ground current density on one scale for both layers; the highlighted barrels are vias carrying the return between them.</p>
       </div>
       <div class="controls">
         <div class="seg" role="group" aria-label="Layer spacing">
@@ -303,6 +456,7 @@ footer { color: var(--ink-3); font-size: 0.85rem; }
         </div>
         <button type="button" class="btn" id="v3d-reset">Reset view</button>
         <button type="button" class="btn" id="v3d-png">Save PNG</button>
+        <button type="button" class="btn" id="v3d-webp" title="Figure as in the write-up: no grid, cropped, with colour bar and legend">Save WebP</button>
         <button type="button" class="btn" id="v3d-motion" aria-pressed="false">Pause flow</button>
       </div>
     </div>
@@ -508,7 +662,7 @@ const D = /*__DATA__*/null;
     hot: {
       what: [
         "When the MT3608 switch turns off, the inductor current jumps from the switch (IC1 pin 1 → pin 2) to the diode (D1 → C3). The loop in which current changes abruptly runs SW → D1 → C3 → ground → IC1 pin 2. Its area sets ringing, spikes and radiated noise.",
-        "The light dashed line is the forward path on traces. The moving streaks are the return in the ground copper: amber on the top layer, blue on the bottom. Labels at vias show the share of a 1 A loop current changing layer (↓ top to bottom, ↑ bottom to top).",
+        "The dashed line is the forward path on traces. The moving streaks are the return in the ground copper, coloured by layer as in the legend. Labels at vias show the share of a 1 A loop current changing layer (↓ top to bottom, ↑ bottom to top).",
       ],
       nums: () => [
         ['Loop area, tightest possible return', '93 mm²'],
@@ -559,7 +713,7 @@ const D = /*__DATA__*/null;
     islands: {
       what: [
         "On the top layer the ground pour is three separate islands. A holds IC1's ground pin and C4. B, the main pour, holds the output capacitor C3, the input capacitor C1, the divider ground R3, the GND pad J3 and Q1. C sits under the SW node and connects to nothing but one via.",
-        "They meet only through vias into the bottom pour, which BAT+ and BAT− (highlighted yellow) cut right under the converter. Switch to Bottom to see the strips.",
+        "They meet only through vias into the bottom pour, which BAT+ and BAT− (highlighted) cut right under the converter. Switch to Bottom to see the strips.",
       ],
       nums: () => [
         ['Island A: IC1 GND + C4', `${D.islands.ic.area} mm²`, '4 vias'],
@@ -776,12 +930,7 @@ const D = /*__DATA__*/null;
     state.tab = tab;
     stage.dataset.tab = tab;
     document.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
-    const f = FIELD_OF[tab];
-    for (const L of ['F', 'B']) {
-      const img = $('#heat-' + L);
-      const src = tab === 'fb' ? D.pot[L] : (f ? D.heat[f][L] : '');
-      if (src) { img.setAttribute('href', src); img.style.display = ''; } else { img.removeAttribute('href'); img.style.display = 'none'; }
-    }
+    paintHeat();
     const iso = $('#iso');
     iso.innerHTML = '';
     if (tab === 'fb') {
@@ -808,12 +957,42 @@ const D = /*__DATA__*/null;
     setView();
   }
 
-  function rampCss(stops) { return `linear-gradient(90deg, ${stops.join(', ')})`; }
-  const RAMPS = {
-    F: ['rgba(120,60,20,0)', 'rgb(214,110,40)', 'rgb(250,170,70)', 'rgb(255,236,190)'],
-    B: ['rgba(20,60,120,0)', 'rgb(40,120,214)', 'rgb(90,190,250)', 'rgb(215,245,255)'],
-    P: ['rgb(40,30,90)', 'rgb(110,85,210)', 'rgb(170,150,245)', 'rgb(235,228,255)'],
-  };
+  // heatmaps arrive as grey scalar maps and are coloured here with the ramp of the current figure style
+  const heatCache = new Map();
+  function colourHeat(src, rk) {
+    let e = heatCache.get(src);
+    if (!e) heatCache.set(src, e = {});
+    const k = RP.styleId() + rk;
+    if (!e[k]) {
+      const lut = RP.lut(RP.style().ramps[rk]);
+      e[k] = (async () => {
+        const im = new Image();
+        im.src = src;
+        await im.decode();
+        const c = document.createElement('canvas'), x = c.getContext('2d');
+        c.width = im.naturalWidth; c.height = im.naturalHeight;
+        x.drawImage(im, 0, 0);
+        const d = x.getImageData(0, 0, c.width, c.height), q = d.data;
+        for (let i = 0; i < q.length; i += 4) { const o = q[i] * 4; q[i] = lut[o]; q[i + 1] = lut[o + 1]; q[i + 2] = lut[o + 2]; q[i + 3] = lut[o + 3]; }
+        x.putImageData(d, 0, 0);
+        return c.toDataURL('image/png');
+      })();
+    }
+    return e[k];
+  }
+  function paintHeat() {
+    const tab = state.tab, f = FIELD_OF[tab];
+    for (const L of ['F', 'B']) {
+      const img = $('#heat-' + L);
+      const src = tab === 'fb' ? D.pot[L] : (f ? D.heat[f][L] : '');
+      if (!src) { img.dataset.want = ''; img.removeAttribute('href'); img.style.display = 'none'; continue; }
+      const want = img.dataset.want = tab + RP.styleId();
+      colourHeat(src, tab === 'fb' ? 'P' : L).then((url) => {
+        if (img.dataset.want !== want) return;
+        img.setAttribute('href', url); img.style.display = '';
+      }).catch((err) => console.warn('heatmap', err));
+    }
+  }
   function sci(v) {
     if (v >= 0.995) return v.toFixed(v >= 10 ? 0 : 1);
     if (v >= 0.0995) return v.toFixed(2);
@@ -827,14 +1006,14 @@ const D = /*__DATA__*/null;
     if (tab === 'islands') {
       h += `<span class="sw"><i style="background:var(--isl-a)"></i>A · IC1 GND</span><span class="sw"><i style="background:var(--isl-b)"></i>B · main pour</span><span class="sw"><i style="background:var(--isl-c)"></i>C · under SW</span><span class="sw"><i style="background:var(--cu-bot)"></i>bottom pour</span>`;
     } else if (tab === 'fb') {
-      h += `<span class="ramp"><span>Ground voltage</span><span class="bar" style="background:${rampCss(RAMPS.P)}"></span><span class="ticks"><span>0 % · IC1</span><span>100 % · C3−</span></span></span>`;
+      h += `<span class="ramp"><span>Ground voltage</span><span class="bar" style="background:${RP.rampCss(RP.style().ramps.P)}"></span><span class="ticks"><span>0 % · IC1</span><span>100 % · C3−</span></span></span>`;
       h += `<span class="sw"><i class="line"></i>5 V sense path</span><span class="sw"><i style="height:0;border-top:2.5px dotted var(--mark);border-radius:0"></i>FB node</span>`;
     } else {
       const m = D.field.meta[f];
       const lo = Math.pow(10, m.lo), hi = Math.pow(10, m.hi), mid = Math.sqrt(lo * hi);
       const unit = tab === 'dc' ? 'A/mm at 1 A load' : 'A/mm per 1 A loop';
       for (const L of ['F', 'B']) {
-        h += `<span class="ramp"><span>${L === 'F' ? 'Top' : 'Bottom'}</span><span class="bar" style="background:${rampCss(RAMPS[L])}"></span><span class="ticks"><span>${sci(lo)}</span><span>${sci(mid)}</span><span>${sci(hi)}</span></span></span>`;
+        h += `<span class="ramp"><span>${L === 'F' ? 'Top' : 'Bottom'}</span><span class="bar" style="background:${RP.rampCss(RP.style().ramps[L])}"></span><span class="ticks"><span>${sci(lo)}</span><span>${sci(mid)}</span><span>${sci(hi)}</span></span></span>`;
       }
       h += `<span>${unit}, log scale</span><span class="sw"><i class="line"></i>forward path</span>`;
     }
@@ -922,7 +1101,6 @@ const D = /*__DATA__*/null;
     const v = VIEWS[state.zoom];
     return [(x - v[0]) / v[2] * cw, (y - v[1]) / v[3] * ch];
   }
-  const COL = ['rgba(255,214,150,0.95)', 'rgba(170,228,255,0.95)'];
   function step(dt) {
     ctx.globalCompositeOperation = 'destination-out';
     ctx.fillStyle = 'rgba(0,0,0,0.16)';
@@ -933,7 +1111,7 @@ const D = /*__DATA__*/null;
     ctx.lineWidth = 1.4 * dpr; ctx.lineCap = 'round';
     for (const Lr of activeLayers()) {
       const key = fieldKey(Lr ? 'B' : 'F'), off = D.field.offsets[key];
-      ctx.strokeStyle = COL[Lr];
+      ctx.strokeStyle = RP.style().flow[Lr];
       ctx.beginPath();
       for (let i = 0; i < N; i++) {
         if (lay[i] !== Lr) continue;
@@ -960,7 +1138,7 @@ const D = /*__DATA__*/null;
     ctx.lineWidth = 1.2 * dpr; ctx.lineCap = 'round';
     for (const Lr of activeLayers()) {
       const off = D.field.offsets[fieldKey(Lr ? 'B' : 'F')];
-      ctx.strokeStyle = COL[Lr]; ctx.fillStyle = COL[Lr];
+      ctx.strokeStyle = ctx.fillStyle = RP.style().flow[Lr];
       ctx.beginPath();
       for (let gy = (Lr ? 3 : 0); gy < GH; gy += stepCells) for (let gx = (Lr ? 3 : 0); gx < GW; gx += stepCells) {
         const k = gy * GW + gx, m = F8[off + k];
@@ -1058,6 +1236,7 @@ const D = /*__DATA__*/null;
   new ResizeObserver(() => resize()).observe(stage);
   new IntersectionObserver((es) => { visible = es[0].isIntersecting; startLoop(); }).observe(stage);
   document.addEventListener('visibilitychange', startLoop);
+  document.addEventListener('rp:style', () => { paintHeat(); renderLegend(); resetParticles(); });
 
   buildBoard();
   buildOverlay();
@@ -1095,7 +1274,10 @@ const D = /*__DATA__*/null;
   const PXMM = 40;                                   // texture resolution, px per mm
   const HOME = { t: [155.2, 105.0, -0.6], off: [-11, 27, 34] };
   const PART_LABELS = { IC1: 'IC1', L1: 'L1', D1: 'D1', C3: 'C3', C1: 'C1', C4: 'C4', R2: 'R2', R3: 'R3', Q1: 'Q1', J3: 'GND', J2: '5V', J4: 'BAT+', J5: 'BAT−' };
-  const FWD = '#eaf6ff', VIA_HOT = '#ffd166';
+  const P3 = () => RP.style().d3;                 // colours of the current figure style
+  // the ETH styles draw the current as one continuous arrow round the loop; the CAD style as a bundle of current lines
+  const loopMode = () => RP.styleId() !== 'cad';
+  const LOOP_R = 0.11, ROUTE_MIN = 0.08;           // arrow radius at the full loop current (mm), smallest return route shown
   const st = { s: 'hot', sep: 5, sepNow: 5, paused: false, visible: false };
   const TXT = {
     hot: {
@@ -1114,19 +1296,8 @@ const D = /*__DATA__*/null;
       unit: 'A/mm at 1 A load',
     },
   };
-  // one sequential ramp for both layers: low current recedes into the copper, high current runs hot
-  const STOPS = [[0, [92, 22, 74]], [0.3, [168, 32, 66]], [0.55, [230, 88, 40]], [0.78, [252, 172, 60]], [1, [255, 247, 218]]];
-  function ramp(t) {
-    t = Math.max(0, Math.min(1, t));
-    for (let i = 1; i < STOPS.length; i++) {
-      const [b, cb] = STOPS[i];
-      if (t <= b) {
-        const [a, ca] = STOPS[i - 1], u = (t - a) / (b - a);
-        return [0, 1, 2].map((j) => ca[j] + (cb[j] - ca[j]) * u);
-      }
-    }
-    return STOPS[STOPS.length - 1][1];
-  }
+  // one sequential ramp for both layers (the style's heat stops): low current recedes into the copper
+  const ramp = (t) => RP.stopsAt(P3().heat, t);
   function sci(v) { return v >= 0.995 ? v.toFixed(v >= 10 ? 0 : 1) : (v >= 0.0995 ? v.toFixed(2) : v.toFixed(3)); }
   function rrect(c, x, y, w, h, r) {
     c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
@@ -1168,10 +1339,10 @@ const D = /*__DATA__*/null;
     const mm = (k) => k.setTransform(PXMM, 0, 0, PXMM, -G.x0 * PXMM, -G.y0 * PXMM);
     c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, W, H); mm(c);
     // ground pour; the top one is see-through so the bottom return stays visible
-    c.fillStyle = top ? 'rgba(150,112,70,0.40)' : 'rgba(150,112,70,0.96)';
+    c.fillStyle = P3().pour[top ? 0 : 1];
     c.fill(gnd(L), 'evenodd');
     // other copper: tracks, pads, via lands
-    c.fillStyle = c.strokeStyle = top ? 'rgba(196,152,98,0.78)' : 'rgba(196,152,98,0.97)';
+    c.fillStyle = c.strokeStyle = P3().cu[top ? 0 : 1];
     c.lineCap = 'round';
     for (const t of D.tracks) {
       if (t.l !== L) continue;
@@ -1213,7 +1384,7 @@ const D = /*__DATA__*/null;
       c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(scratch, 0, 0); mm(c);
     }
     // drill holes
-    c.fillStyle = '#050807';
+    c.fillStyle = P3().hole;
     for (const v of D.vias) { c.beginPath(); c.arc(v.x, v.y, 0.175, 0, 2 * Math.PI); c.fill(); }
     for (const p of D.pads) if (p.L === 'FB') { c.beginPath(); c.arc(p.x, p.y, Math.min(p.w, p.h) * 0.27, 0, 2 * Math.PI); c.fill(); }
   }
@@ -1221,12 +1392,16 @@ const D = /*__DATA__*/null;
   // ---------------------------------------------------------------- legend and text under the view
   function renderLegend() {
     const m = D.field.meta[st.s], lo = Math.pow(10, m.lo), hi = Math.pow(10, m.hi);
-    const grad = 'linear-gradient(90deg, ' + STOPS.map(([t, c]) => `rgb(${c.join(',')}) ${t * 100}%`).join(', ') + ')';
+    const p3 = P3(), grad = 'linear-gradient(90deg, ' + p3.heat.map(([t, c]) => `rgb(${c.join(',')}) ${t * 100}%`).join(', ') + ')';
     $('#legend3d').innerHTML =
       `<span class="ramp wide"><span>Ground current</span><span class="bar" style="background:${grad}"></span>` +
       `<span class="ticks"><span>${sci(lo)}</span><span>${sci(Math.sqrt(lo * hi))}</span><span>${sci(hi)}</span></span></span>` +
       `<span>${TXT[st.s].unit}, log scale</span>` +
-      `<span class="sw"><i class="sl3"></i>current path, equal share per line</span><span class="sw"><i class="fwd3"></i>forward path</span><span class="sw"><i class="via3"></i>via current</span>`;
+      (loopMode()
+        ? `<span class="sw"><i class="loop3" style="color:${p3.line}"></i>current loop: forward path, then the main return route</span>`
+        : `<span class="sw"><i class="sl3" style="color:${p3.line}"></i>current path, equal share per line</span>` +
+          `<span class="sw"><i class="fwd3" style="color:${p3.fwd}"></i>forward path</span>`) +
+      `<span class="sw"><i class="via3" style="background:${p3.via}"></i>via current</span>`;
   }
   function renderExplain() {
     const cur = D.viaCur[st.s], dc = st.s === 'dc';
@@ -1237,13 +1412,17 @@ const D = /*__DATA__*/null;
       ['Through vias, bottom → top', f(up)],
       ['Layer spacing drawn', st.sep <= 1.6 ? 'to scale' : `×${(st.sep / 1.6).toFixed(1)}`, '1.6 mm board, 35 µm copper'],
     ];
-    let h = `<div class="what"><p>${TXT[st.s].what}</p><p>Each solid line carries an equal share of the current from the pad where it enters to the pad where it leaves, changing layer through the via it actually uses, so lines bunch where the current is dense. The top pour is drawn translucent so the bottom return shows through. Only ground copper is solved; other copper is shown as plain copper without current.</p></div><dl>`;
+    const how = loopMode()
+      ? `The arrow follows the current once round the loop: out along the forward path through the parts and tracks, then back through the ground copper, changing layer at the vias it uses. The return is the most typical of the solved current lines between the two pads, so it shows the main route only; the colour map shows how all of the current spreads. Where the return splits between pads, width and label give each route's share (routes under ${Math.round(ROUTE_MIN * 100)} % are left out).`
+      : 'Each solid line carries an equal share of the current from the pad where it enters to the pad where it leaves, changing layer through the via it actually uses, so lines bunch where the current is dense.';
+    let h = `<div class="what"><p>${TXT[st.s].what}</p><p>${how} The top pour is drawn translucent so the bottom return shows through. Only ground copper is solved; other copper is shown as plain copper without current.</p></div><dl>`;
     for (const [k, v, s] of rows) h += `<div><dt>${k}</dt><dd>${v}${s ? `<small>${s}</small>` : ''}</dd></div>`;
     $('#explain3d').innerHTML = h + '</dl>';
   }
 
   // ---------------------------------------------------------------- scene
-  let T, renderer, scene, camera, controls, topG, botG, topMesh, botMesh, core, coreEdges, floor, dyn, dashTex;
+  let T, renderer, scene, camera, controls, topG, botG, topMesh, botMesh, core, coreEdges, floor, dyn, dashTex, hemi, barrelMat, loopMat, coneGeo, ballGeo;
+  const styleLabels = [];
   const tex = {}, cnv = {}, barrels = [], dashes = [];
   const W3 = (x, y, h) => new T.Vector3(x - CX, h, y - CY);
 
@@ -1258,9 +1437,9 @@ const D = /*__DATA__*/null;
       rrect(x, 2, 2, w - 4, h - 4, h * 0.22); x.fillStyle = o.bg; x.fill();
       if (o.border) { x.lineWidth = 3; x.strokeStyle = o.border; x.stroke(); }
     } else {
-      x.lineJoin = 'round'; x.lineWidth = fs * 0.2; x.strokeStyle = 'rgba(8,12,10,0.92)'; x.strokeText(text, w / 2, h / 2 + 2);
+      x.lineJoin = 'round'; x.lineWidth = fs * 0.2; x.strokeStyle = P3().halo; x.strokeText(text, w / 2, h / 2 + 2);
     }
-    x.fillStyle = o.color || '#eef4f0'; x.fillText(text, w / 2, h / 2 + 2);
+    x.fillStyle = o.color || P3().partLbl; x.fillText(text, w / 2, h / 2 + 2);
     const t = new T.CanvasTexture(c);
     t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4;
     const sp = new T.Sprite(new T.SpriteMaterial({ map: t, transparent: true, depthTest: false, depthWrite: false, opacity: o.opacity || 1 }));
@@ -1285,12 +1464,73 @@ const D = /*__DATA__*/null;
     return { mesh: new T.Mesh(new T.TubeGeometry(path, Math.max(8, Math.ceil(len * 10)), r, 10, false), mat), len };
   }
 
+  // ---------------------------------------------------------------- the loop arrow (ETH styles)
+  const ARROW_EVERY = 3.2;                           // mm of path between arrowheads
+  // Cones along a 3D polyline, pointing downstream. Each head is aimed along the chord over its own length, so it lies
+  // on the path, and slides (within a third of the spacing) to where the path is straightest, so none sits on a corner.
+  function arrowheads(pts, r, grp, curved) {         // curved: a smooth arc, where any spot will do
+    const cum = [0];
+    for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + pts[i].distanceTo(pts[i - 1]));
+    const len = cum[cum.length - 1], hl = 7 * r, end = 0.5 + hl;
+    if (len < 2 * end) return;
+    const at = (s) => {
+      s = Math.max(0, Math.min(len, s));
+      let i = 1;
+      while (i < pts.length - 1 && cum[i] < s) i++;
+      return pts[i - 1].clone().lerp(pts[i], (s - cum[i - 1]) / (cum[i] - cum[i - 1] || 1));
+    };
+    const bend = (s) => {                             // angle between the path just behind and just ahead of s
+      const a = at(s - hl).sub(at(s - hl / 4)), b = at(s + hl).sub(at(s + hl / 4));
+      return Math.PI - a.angleTo(b);
+    };
+    const n = Math.max(1, Math.round(len / ARROW_EVERY)), step = len / n, up = new T.Vector3(0, 1, 0);
+    for (let k = 0; k < n; k++) {
+      const s0 = step * (k + 0.5);
+      let best = s0, bb = Infinity;
+      for (let o = -step / 3; o <= step / 3 + 1e-9; o += step / 30) {
+        const s = s0 + o;
+        if (s < end || s > len - end) continue;
+        const b = (curved ? 0 : bend(s)) + Math.abs(o) / step * 0.05;  // ties go to the even spacing
+        if (b < bb) { bb = b; best = s; }
+      }
+      if (bb === Infinity || bb > 0.4) continue;       // no straight stretch near here: leave the head out
+      const tail = at(best - hl / 2), tip = at(best + hl / 2);
+      const c = new T.Mesh(coneGeo, loopMat);
+      c.position.copy(tail).lerp(tip, 0.5);
+      // a flat head lying in the board plane reads as a triangle from above; round only where the path is vertical
+      const d = tip.sub(tail).normalize(), side = new T.Vector3().crossVectors(d, up);
+      if (side.lengthSq() > 1e-4) {
+        side.normalize();
+        c.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(side, d, new T.Vector3().crossVectors(side, d)));
+        c.scale.set(3.4 * r, hl, 1.2 * r);
+      } else {
+        c.quaternion.setFromUnitVectors(up, d);
+        c.scale.set(2.7 * r, hl, 2.7 * r);
+      }
+      c.renderOrder = 9; grp.add(c);
+    }
+  }
+  function ball(p, r, grp) {                          // rounds the joints between pieces of the arrow
+    const s = new T.Mesh(ballGeo, loopMat);
+    s.position.copy(p); s.scale.setScalar(r); grp.add(s);
+  }
+  function loopDrop(x, y, lift, r, down) {           // the arrow through a via, with a head halfway
+    const cyl = new T.Mesh(new T.CylinderGeometry(r, r, 1, 12, 1, true), loopMat);
+    cyl.position.set(x - CX, lift, y - CY);           // spans exactly from the bottom path to the top path
+    barrels.push(cyl); dyn.add(cyl);
+    const c = new T.Mesh(coneGeo, loopMat);
+    c.position.set(x - CX, lift, y - CY);
+    if (down) c.rotation.x = Math.PI;
+    c.scale.set(2.7 * r, 7 * r, 2.7 * r);
+    dyn.add(c);
+  }
+
   function forwardPath() {
     const segs = (window.RP_PATHS || {})[st.s] || [];
-    const lift = 0.13;
+    const lift = 0.13, loop = loopMode();
     segs.forEach((seg, si) => {
       if (seg.k === 'ext') return;
-      const r = 0.075 * (seg.w || 1);
+      const r = (loop ? LOOP_R : 0.075) * (seg.w || 1);
       const grp = seg.k === 'B' ? botG : topG;
       let pts;
       if (seg.k === 'part') {                         // current through a component body: arc over it
@@ -1301,18 +1541,26 @@ const D = /*__DATA__*/null;
           pts.push(W3(x, y, lift + 4 * hh * u * (1 - u)));
         }
       } else pts = seg.p.map(([x, y]) => W3(x, y, lift));
-      const under = tube(pts, r * 1.9, new T.MeshBasicMaterial({ color: '#0b100e', transparent: true, opacity: 0.55, depthWrite: false }));
-      under.mesh.renderOrder = 8; grp.add(under.mesh);
-      const dt = dashTex.clone(); dt.needsUpdate = true; dt.repeat.set(under.len / 0.9, 1);
-      dashes.push(dt);
-      const main = tube(pts, r, new T.MeshBasicMaterial({ color: FWD, map: dt, transparent: true, depthWrite: false, opacity: seg.k === 'part' ? 0.75 : 1 }));
-      main.mesh.renderOrder = 9; grp.add(main.mesh);
+      if (loop) {                                     // solid, in the loop colour, joined to the return
+        const main = tube(pts, r, loopMat);
+        main.mesh.renderOrder = 9; grp.add(main.mesh);
+        arrowheads(pts, r, grp, seg.k === 'part');
+        ball(pts[0], r, grp); ball(pts[pts.length - 1], r, grp);
+      } else {
+        const under = tube(pts, r * 1.9, new T.MeshBasicMaterial({ color: P3().under, transparent: true, opacity: 0.55, depthWrite: false }));
+        under.mesh.renderOrder = 8; grp.add(under.mesh);
+        const dt = dashTex.clone(); dt.needsUpdate = true; dt.repeat.set(under.len / 0.9, 1);
+        dashes.push(dt);
+        const main = tube(pts, r, new T.MeshBasicMaterial({ color: P3().fwd, map: dt, transparent: true, depthWrite: false, opacity: seg.k === 'part' ? 0.75 : 1 }));
+        main.mesh.renderOrder = 9; grp.add(main.mesh);
+      }
       // forward path changing layer through a via
       const nx = segs[si + 1];
       if (nx && seg.k !== nx.k && (seg.k === 'F' || seg.k === 'B') && (nx.k === 'F' || nx.k === 'B')) {
         const [x, y] = seg.p[seg.p.length - 1];
         if (Math.hypot(x - nx.p[0][0], y - nx.p[0][1]) < 0.05) {
-          const cyl = new T.Mesh(new T.CylinderGeometry(r, r, 1, 10, 1, true), new T.MeshBasicMaterial({ color: FWD }));
+          if (loop) { loopDrop(x, y, lift, r, seg.k === 'F'); return; }
+          const cyl = new T.Mesh(new T.CylinderGeometry(r, r, 1, 10, 1, true), new T.MeshBasicMaterial({ color: P3().fwd }));
           cyl.position.set(x - CX, 0, y - CY); cyl.userData.lift = lift;
           barrels.push(cyl); dyn.add(cyl);
         }
@@ -1325,7 +1573,7 @@ const D = /*__DATA__*/null;
     const geo = new T.CylinderGeometry(1, 1, 1, 24, 1, true); geo.userData.shared = false;
     for (const v of cur) {
       const a = Math.abs(v.i) / imax;
-      const mat = new T.MeshLambertMaterial({ color: VIA_HOT, emissive: '#ff9a1f', emissiveIntensity: 0.25 + 0.75 * a });
+      const mat = new T.MeshLambertMaterial({ color: P3().via, emissive: P3().viaGlow, emissiveIntensity: 0.25 + 0.75 * a });
       const m = new T.Mesh(geo, mat);
       m.position.set(v.x - CX, 0, v.y - CY); m.scale.set(0.3, 1, 0.3);
       barrels.push(m); dyn.add(m);
@@ -1396,17 +1644,23 @@ const D = /*__DATA__*/null;
     const sinks = ENDS[st.s].sink.map(padOf);
     const holes = D.vias.map((v) => ({ x: v.x, y: v.y, r: 0.32 }))
       .concat(D.pads.filter((p) => p.L === 'FB').map((p) => ({ x: p.x, y: p.y, r: Math.min(p.w, p.h) * 0.42 })));
-    holes.forEach((h) => { h.n = { F: 0, B: 0 }; h.ring = {}; });
+    holes.forEach((h, i) => { h.n = { F: 0, B: 0 }; h.ring = {}; h.c = i; });
+    // holes closer than 1.5 mm form one group, so lines through neighbouring vias count as the same route
+    for (const a of holes) for (const b of holes) {
+      if (a.c === b.c || Math.hypot(a.x - b.x, a.y - b.y) > 1.5) continue;
+      const old = b.c;
+      holes.forEach((o) => { if (o.c === old) o.c = a.c; });
+    }
     // seeds: all source pads on every layer they are on, one line per equal share of the outward flux
     let seedRing = [];
-    for (const n of ENDS[st.s].src) { const p = padOf(n); for (const L of ['F', 'B']) if (p.L.indexOf(L) >= 0) seedRing = seedRing.concat(padRing(p, L)); }
+    for (const n of ENDS[st.s].src) { const p = padOf(n); for (const L of ['F', 'B']) if (p.L.indexOf(L) >= 0) seedRing = seedRing.concat(padRing(p, L).map((o) => ({ ...o, p }))); }
     const amps = st.s === 'dc' ? 1.5 : 1, N = Math.round(SL.perAmp * amps), lines = [];
     for (let i = 0; i < N; i++) {
       const s = pick(seedRing, (i + 0.5) / N);
       if (!s) break;
       let L = s.L, x = s.x, y = s.y, left = null, since = 0, hops = 0, snaps = 0;
       const skip = new Set();
-      const line = { parts: [{ L, pts: [[x, y]] }], hops: [] };
+      const line = { parts: [{ L, pts: [[x, y]] }], hops: [], groups: [], src: s.p, sink: null };
       for (let n = 0; n < SL.maxSteps; n++) {
         let d = dirAt(L, x, y);
         if (!d) {                                    // stepped off the copper on a raster edge: back onto the nearest copper cell
@@ -1421,7 +1675,8 @@ const D = /*__DATA__*/null;
         x += d2[0] * SL.h; y += d2[1] * SL.h; since += SL.h;
         const part = line.parts[line.parts.length - 1];
         part.pts.push([x, y]);
-        if (sinks.some((p) => p.L.indexOf(L) >= 0 && Math.abs(x - p.x) <= p.w / 2 + 0.12 && Math.abs(y - p.y) <= p.h / 2 + 0.12)) break;
+        line.sink = sinks.find((p) => p.L.indexOf(L) >= 0 && Math.abs(x - p.x) <= p.w / 2 + 0.12 && Math.abs(y - p.y) <= p.h / 2 + 0.12) || null;
+        if (line.sink) break;
         // ran into a via or plated pin: change layer there
         const h = holes.find((o) => !skip.has(o) && (o !== left || since > 1) && Math.hypot(x - o.x, y - o.y) < o.r && (d2[0] * (o.x - x) + d2[1] * (o.y - y)) > 0);
         if (!h) continue;
@@ -1433,6 +1688,7 @@ const D = /*__DATA__*/null;
         if (++hops > SL.maxHops) break;
         part.pts.push([h.x, h.y]);
         line.hops.push([h.x, h.y]);
+        line.groups.push(h.c);
         L = to; x = q.x; y = q.y; left = h; since = 0;
         line.parts.push({ L, pts: [[h.x, h.y], [x, y]] });
       }
@@ -1451,7 +1707,7 @@ const D = /*__DATA__*/null;
     return (slCache[st.s] = lines);
   }
   function highCurrentLines() {
-    const mat = new T.MeshBasicMaterial({ color: '#fff3d6', transparent: true, opacity: 0.95, depthWrite: false });
+    const mat = new T.MeshBasicMaterial({ color: P3().line, transparent: true, opacity: 0.95, depthWrite: false });
     const r = 0.04, lift = 0.06, joint = new T.SphereGeometry(r, 10, 8);
     for (const ln of currentLines()) {
       for (const part of ln.parts) {
@@ -1470,6 +1726,108 @@ const D = /*__DATA__*/null;
     }
   }
 
+  // the return as one route per source and sink pad: of the lines between them, those with the most common number of
+  // layer changes are candidates and the most central of them is drawn (smoothed), from pad centre to pad centre so it
+  // joins the forward path. A line that goes down and straight back up within one via group skips that detour.
+  function resample(P, step, n) {                    // evenly spaced points along a 2D polyline, by spacing or count
+    const cum = [0];
+    for (let i = 1; i < P.length; i++) cum.push(cum[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
+    const len = cum[cum.length - 1];
+    n = n || Math.max(2, Math.ceil(len / step) + 1);
+    if (P.length < 2 || !len) return Array.from({ length: n }, () => P[0]);
+    const out = [];
+    let i = 1;
+    for (let k = 0; k < n; k++) {
+      const s = len * k / (n - 1);
+      while (i < P.length - 1 && cum[i] < s) i++;
+      const u = (s - cum[i - 1]) / (cum[i] - cum[i - 1] || 1);
+      out.push([P[i - 1][0] + (P[i][0] - P[i - 1][0]) * u, P[i - 1][1] + (P[i][1] - P[i - 1][1]) * u]);
+    }
+    return out;
+  }
+  function smooth(P, k, passes) {                    // moving average that keeps both ends
+    for (let r = 0; r < passes; r++) {
+      P = P.map((p, i) => {
+        if (i === 0 || i === P.length - 1) return p;
+        const w = Math.min(k, i, P.length - 1 - i);
+        let sx = 0, sy = 0;
+        for (let j = i - w; j <= i + w; j++) { sx += P[j][0]; sy += P[j][1]; }
+        return [sx / (2 * w + 1), sy / (2 * w + 1)];
+      });
+    }
+    return P;
+  }
+  function collapse(ln) {
+    const parts = ln.parts.slice(), hops = ln.hops.slice(), grp = ln.groups.slice();
+    for (let k = 0; k < hops.length - 1;) {
+      if (grp[k] !== grp[k + 1]) { k++; continue; }
+      parts.splice(k, 3, { L: parts[k].L, pts: parts[k].pts.concat(parts[k + 2].pts) });
+      hops.splice(k, 2); grp.splice(k, 2);
+    }
+    return { ...ln, parts, hops };
+  }
+  const rtCache = {};
+  function returnRoutes() {
+    if (rtCache[st.s]) return rtCache[st.s];
+    const lines = currentLines(), groups = new Map();
+    for (const ln of lines) {
+      if (!ln.sink) continue;                         // lost on the way: still counts in the total
+      const key = [ln.src.ref, ln.src.pin, ln.sink.ref, ln.sink.pin].join('|');
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(collapse(ln));
+    }
+    const out = [];
+    for (const g of groups.values()) {
+      const share = g.length / lines.length;
+      if (share < ROUTE_MIN) continue;
+      const count = {};
+      for (const ln of g) count[ln.hops.length] = (count[ln.hops.length] || 0) + 1;
+      const nh = +Object.keys(count).reduce((a, b) => (count[b] > count[a] ? b : a));
+      const rs = g.map((ln) => resample(ln.parts.flatMap((p) => p.pts), 0, 40));
+      let best = -1, bd = Infinity;
+      rs.forEach((a, i) => {
+        if (g[i].hops.length !== nh) return;
+        let d = 0;
+        for (const b of rs) a.forEach((q, j) => { d += Math.hypot(q[0] - b[j][0], q[1] - b[j][1]); });
+        if (d < bd) { bd = d; best = i; }
+      });
+      const ln = g[best], last = ln.parts.length - 1;
+      const parts = ln.parts.map((p, k) => {
+        let P = p.pts.slice();
+        if (k === 0) P.unshift([ln.src.x, ln.src.y]);
+        if (k === last) P.push([ln.sink.x, ln.sink.y]);
+        return { L: p.L, pts: smooth(resample(P, 0.12), 6, 3) };
+      });
+      out.push({ share, parts, hops: ln.hops });
+    }
+    out.sort((a, b) => b.share - a.share);
+    return (rtCache[st.s] = out);
+  }
+  function loopRoutes() {
+    const lift = 0.13, amps = st.s === 'dc' ? 1.5 : 1;
+    for (const rt of returnRoutes()) {
+      const r = LOOP_R * Math.max(0.55, Math.sqrt(rt.share)), grp = (L) => (L === 'F' ? topG : botG);
+      rt.parts.forEach((part, k) => {
+        const pts = part.pts.map(([x, y]) => W3(x, y, lift));
+        const curve = new T.CatmullRomCurve3(pts, false, 'centripetal');
+        const m = new T.Mesh(new T.TubeGeometry(curve, Math.max(8, pts.length * 2), r, 10, false), loopMat);
+        m.renderOrder = part.L === 'F' ? 9 : 3;
+        grp(part.L).add(m);
+        arrowheads(pts, r, grp(part.L));
+        ball(pts[0], r, grp(part.L)); ball(pts[pts.length - 1], r, grp(part.L));
+        if (k < rt.parts.length - 1) loopDrop(rt.hops[k][0], rt.hops[k][1], lift, r, part.L === 'F');
+      });
+      // share of the current on this route, beside the middle of its longest piece, when the return splits
+      if (returnRoutes().length < 2) continue;
+      const long = rt.parts.reduce((a, b) => (b.pts.length > a.pts.length ? b : a));
+      const [x, y] = long.pts[Math.floor(long.pts.length * 0.3)];
+      const sp = label(st.s === 'dc' ? (rt.share * amps).toFixed(2) + ' A' : Math.round(rt.share * 100) + ' %',
+        { size: 0.66, weight: 700, color: P3().line, font: P3().lblFont, center: [0.5, 0] });
+      sp.position.copy(W3(x, y, lift + 0.5));
+      grp(long.L).add(sp);
+    }
+  }
+
   // ---------------------------------------------------------------- build / update
   function applySep() {
     const s = st.sepNow, h = s / 2;
@@ -1483,15 +1841,17 @@ const D = /*__DATA__*/null;
     st.s = s;
     document.querySelectorAll('.tab3').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.s3 === s)));
     renderLegend(); renderExplain();
+    $('#v3d-motion').hidden = reduce.matches || loopMode();   // the loop arrow does not move
     if (!renderer) return;
     for (const L of ['F', 'B']) { paintLayer(L, cnv[L]); tex[L].needsUpdate = true; }
     // drop the per-scenario objects
     for (const g of [dyn, topG, botG]) for (const o of [...g.children]) if (o.userData.perScenario !== false) { g.remove(o); dispose(o); }
     barrels.length = 0; dashes.length = 0;
     staticBarrels.forEach((b) => barrels.push(b));
+    loopMat = new T.MeshBasicMaterial({ color: P3().line });
     forwardPath();
     viaCurrents();
-    if (F8) highCurrentLines();
+    if (F8) { if (loopMode()) loopRoutes(); else highCurrentLines(); }
     applySep();
   }
 
@@ -1516,24 +1876,21 @@ const D = /*__DATA__*/null;
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     renderer.outputColorSpace = T.SRGBColorSpace;
     scene = new T.Scene();
-    scene.background = new T.Color('#0b100e');
-    scene.fog = new T.Fog('#0b100e', 70, 190);
+    scene.background = new T.Color();
+    scene.fog = new T.Fog(0, 70, 190);
     camera = new T.PerspectiveCamera(30, 2, 0.5, 600);
     controls = new OrbitControls(camera, cv);
     controls.enableDamping = true; controls.dampingFactor = 0.085;
     controls.minDistance = 6; controls.maxDistance = 170; controls.maxPolarAngle = Math.PI * 0.94;
     controls.screenSpacePanning = true;
-    scene.add(new T.HemisphereLight('#e6efe9', '#1b2621', 1.6));
+    hemi = new T.HemisphereLight(0xffffff, 0, 1.6); scene.add(hemi);
     const sun = new T.DirectionalLight('#ffffff', 1.4); sun.position.set(-25, 40, 30); scene.add(sun);
 
     const bw = BD.x1 - BD.x0, bh = BD.y1 - BD.y0, bx = (BD.x0 + BD.x1) / 2 - CX, bz = (BD.y0 + BD.y1) / 2 - CY;
-    floor = new T.GridHelper(220, 110, '#22332c', '#16211d');
-    floor.material.transparent = true; floor.material.opacity = 0.7; floor.material.depthWrite = false;
-    floor.position.set(bx, 0, bz); scene.add(floor);
     const boxGeo = new T.BoxGeometry(bw, 1, bh);
-    core = new T.Mesh(boxGeo, new T.MeshBasicMaterial({ color: '#3f7a5c', transparent: true, opacity: 0.12, depthWrite: false }));
+    core = new T.Mesh(boxGeo, new T.MeshBasicMaterial({ transparent: true, depthWrite: false }));
     core.position.set(bx, 0, bz); core.renderOrder = 4; scene.add(core);
-    coreEdges = new T.LineSegments(new T.EdgesGeometry(boxGeo), new T.LineBasicMaterial({ color: '#6f9483', transparent: true, opacity: 0.85 }));
+    coreEdges = new T.LineSegments(new T.EdgesGeometry(boxGeo), new T.LineBasicMaterial({ transparent: true, opacity: 0.85 }));
     coreEdges.position.copy(core.position); scene.add(coreEdges);
 
     topG = new T.Group(); botG = new T.Group(); dyn = new T.Group();
@@ -1554,7 +1911,7 @@ const D = /*__DATA__*/null;
     }
     // every via and plated pin as a plated barrel
     const barrelGeo = new T.CylinderGeometry(1, 1, 1, 18, 1, true); barrelGeo.userData.shared = true;
-    const barrelMat = new T.MeshLambertMaterial({ color: '#8d9a93', transparent: true, opacity: 0.85 });
+    barrelMat = new T.MeshLambertMaterial({ transparent: true, opacity: 0.85 });
     const holes = D.vias.map((v) => [v.x, v.y, 0.2]).concat(D.pads.filter((p) => p.L === 'FB').map((p) => [p.x, p.y, Math.min(p.w, p.h) * 0.3]));
     for (const [x, y, r] of holes) {
       const m = new T.Mesh(barrelGeo, barrelMat);
@@ -1562,33 +1919,52 @@ const D = /*__DATA__*/null;
       m.userData.perScenario = false;
       staticBarrels.push(m); scene.add(m);
     }
-    // labels: layers and parts
-    const lt = label('TOP COPPER', { size: 0.85, weight: 500, color: '#e8c79a', center: [1, 0.5] });
-    lt.position.set(BD.x0 - CX - 0.8, 0, (BD.y0 + BD.y1) / 2 - CY); lt.userData.perScenario = false; topG.add(lt);
-    const lb = label('BOTTOM COPPER', { size: 0.85, weight: 500, color: '#e8c79a', center: [1, 0.5] });
-    lb.position.set(BD.x0 - CX - 0.8, 0, (BD.y0 + BD.y1) / 2 - CY); lb.userData.perScenario = false; botG.add(lb);
-    for (const p of D.parts) {
-      const t = PART_LABELS[p.ref];
-      if (!t) continue;
-      const sp = label(t, { size: 0.72, color: '#dfe9e3', opacity: 0.88 });
-      const conn = p.ref[0] === 'J';
-      sp.position.set((conn ? BD.x1 + 0.6 : p.x) - CX, conn ? 0.1 : 0.9, p.y - CY);
-      if (conn) sp.center.set(0, 0.5);
-      sp.userData.perScenario = false;
-      topG.add(sp);
-    }
     // dash pattern shared by the forward-path tubes
     const dc = document.createElement('canvas'); dc.width = 64; dc.height = 4;
     const dx = dc.getContext('2d'); dx.fillStyle = '#fff'; dx.fillRect(0, 0, 40, 4);
     dashTex = new T.CanvasTexture(dc); dashTex.wrapS = T.RepeatWrapping; dashTex.userData.shared = true;
+    // unit cone and ball for the loop arrow, scaled per use
+    coneGeo = new T.ConeGeometry(1, 1, 18); coneGeo.userData.shared = true;
+    ballGeo = new T.SphereGeometry(1, 14, 10); ballGeo.userData.shared = true;
 
 
     msg.hidden = true;
+    styleScene();
     resize();
     home();
     setScenario(st.s);
     new ResizeObserver(resize).observe(host);
     startLoop();
+  }
+
+  // colours and labels that belong to the figure style rather than to the scenario
+  function styleScene() {
+    const p3 = P3(), bx = (BD.x0 + BD.x1) / 2 - CX, bz = (BD.y0 + BD.y1) / 2 - CY;
+    scene.background.set(p3.bg); scene.fog.color.set(p3.bg);
+    hemi.color.set(p3.hemi[0]); hemi.groundColor.set(p3.hemi[1]);
+    core.material.color.set(p3.core); core.material.opacity = p3.coreA;
+    coreEdges.material.color.set(p3.edge);
+    barrelMat.color.set(p3.barrel); barrelMat.opacity = p3.barrelA;
+    if (floor) { scene.remove(floor); dispose(floor); }
+    floor = new T.GridHelper(220, 110, p3.grid[0], p3.grid[1]);
+    floor.material.transparent = true; floor.material.opacity = 0.7; floor.material.depthWrite = false;
+    floor.position.set(bx, 0, bz); scene.add(floor);
+    for (const sp of styleLabels.splice(0)) { sp.parent.remove(sp); dispose(sp); }
+    const add = (g, sp) => { sp.userData.perScenario = false; styleLabels.push(sp); g.add(sp); };
+    const lt = label('TOP COPPER', { size: 0.85, weight: 500, color: p3.layerLbl, center: [1, 0.5], font: p3.lblFont });
+    lt.position.set(BD.x0 - CX - 0.8, 0, bz); add(topG, lt);
+    const lb = label('BOTTOM COPPER', { size: 0.85, weight: 500, color: p3.layerLbl, center: [1, 0.5], font: p3.lblFont });
+    lb.position.set(BD.x0 - CX - 0.8, 0, bz); add(botG, lb);
+    for (const p of D.parts) {
+      const t = PART_LABELS[p.ref];
+      if (!t) continue;
+      const sp = label(t, { size: 0.72, color: p3.partLbl, opacity: 0.88, font: p3.lblFont });
+      const conn = p.ref[0] === 'J';
+      sp.position.set((conn ? BD.x1 + 0.6 : p.x) - CX, conn ? 0.1 : 0.9, p.y - CY);
+      if (conn) sp.center.set(0, 0.5);
+      add(topG, sp);
+    }
+    applySep();
   }
 
   function home() {
@@ -1640,20 +2016,21 @@ const D = /*__DATA__*/null;
     const gw = cv.width, gh = cv.height, k = gw / 1600, band = Math.round(120 * k);
     const out = document.createElement('canvas'); out.width = gw; out.height = gh + band;
     const c = out.getContext('2d');
-    c.fillStyle = '#0b100e'; c.fillRect(0, 0, out.width, out.height);
+    const p3 = P3();
+    c.fillStyle = p3.bg; c.fillRect(0, 0, out.width, out.height);
     c.drawImage(cv, 0, 0);
     renderer.setPixelRatio(pr); resize();
-    c.fillStyle = '#25312c'; c.fillRect(0, gh, gw, Math.max(1, 2 * k));
+    c.fillStyle = p3.rule; c.fillRect(0, gh, gw, Math.max(1, 2 * k));
     const x0 = 40 * k, y0 = gh + 34 * k;
-    c.fillStyle = '#eef4f0'; c.font = `600 ${30 * k}px "Barlow Semi Condensed", Arial, sans-serif`; c.textBaseline = 'middle';
+    c.fillStyle = p3.title; c.font = `${p3.fontW} ${30 * k}px ${p3.font}`; c.textBaseline = 'middle';
     c.fillText(`LiPo-Board V1 · MT3608 boost · ${TXT[st.s].title}`, x0, y0);
-    c.fillStyle = '#a9b9b1'; c.font = `${17 * k}px "IBM Plex Mono", monospace`;
+    c.fillStyle = p3.sub; c.font = `${17 * k}px ${p3.mono}`;
     c.fillText(`Both copper layers, layer spacing ${st.sep <= 1.6 ? 'to scale' : '×' + (st.sep / 1.6).toFixed(1)} · resistive solve of the ground copper · as-fabricated Gerbers`, x0, y0 + 40 * k);
     const m = D.field.meta[st.s], lo = Math.pow(10, m.lo), hi = Math.pow(10, m.hi), bw = 380 * k, bx = gw - bw - 40 * k, by = gh + 26 * k;
     const g = c.createLinearGradient(bx, 0, bx + bw, 0);
-    for (const [t, col] of STOPS) g.addColorStop(t, `rgb(${col.join(',')})`);
+    for (const [t, col] of p3.heat) g.addColorStop(t, `rgb(${col.join(',')})`);
     c.fillStyle = g; c.fillRect(bx, by, bw, 14 * k);
-    c.fillStyle = '#a9b9b1'; c.font = `${15 * k}px "IBM Plex Mono", monospace`;
+    c.fillStyle = p3.sub; c.font = `${15 * k}px ${p3.mono}`;
     c.textAlign = 'left'; c.fillText(sci(lo), bx, by + 34 * k);
     c.textAlign = 'center'; c.fillText(sci(Math.sqrt(lo * hi)), bx + bw / 2, by + 34 * k);
     c.textAlign = 'right'; c.fillText(sci(hi), bx + bw, by + 34 * k);
@@ -1665,6 +2042,89 @@ const D = /*__DATA__*/null;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     }, 'image/png');
+  }
+
+  // ---------------------------------------------------------------- publication figure: no grid or UI, cropped, with legend and log colour bar
+  // Renders at 2x and downsamples so thin lines stay smooth. Returns a PNG data URL. Used by the figure export script.
+  async function figure(o = {}) {
+    if (!renderer) return null;
+    const p3 = P3(), W = o.width || 2400, k = W / 2400, ss = 2;
+    const aspect = camera.aspect, pr = renderer.getPixelRatio();
+    const RW = Math.round(W * ss * 1.15), RH = Math.round(RW / aspect);
+    floor.visible = false;
+    const extra = [];
+    for (const [txt, g] of [['top copper', topG], ['bottom copper', botG]]) {
+      const sp = label(txt, { size: 0.8, weight: 400, color: p3.layerLbl, center: [0, 0.5], font: p3.font });
+      sp.position.copy(W3(BD.x1 + 0.6, BD.y1 - 0.2, 0)); g.add(sp); extra.push(sp);   // beside the front right corner of each layer
+    }
+    renderer.setPixelRatio(1); renderer.setSize(RW, RH, false);
+    renderer.render(scene, camera);
+    const raw = document.createElement('canvas'); raw.width = RW; raw.height = RH;
+    const rx = raw.getContext('2d'); rx.drawImage(cv, 0, 0);
+    for (const sp of extra) { sp.parent.remove(sp); dispose(sp); }
+    floor.visible = true;
+    renderer.setPixelRatio(pr); resize();
+    // crop to everything that is not background
+    const px = rx.getImageData(0, 0, RW, RH).data, bg = new T.Color(p3.bg), br = bg.r * 255, bgg = bg.g * 255, bb = bg.b * 255;
+    let x0 = RW, y0 = RH, x1 = 0, y1 = 0;
+    for (let y = 0; y < RH; y += 2) for (let x = 0; x < RW; x += 2) {
+      const i = (y * RW + x) * 4;
+      if (Math.abs(px[i] - br) + Math.abs(px[i + 1] - bgg) + Math.abs(px[i + 2] - bb) > 24) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    }
+    const m = 30 * ss; x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m); x1 = Math.min(RW, x1 + m); y1 = Math.min(RH, y1 + m);
+    const cw = x1 - x0, chh = y1 - y0, s = W / cw, IH = Math.round(chh * s), LH = Math.round(150 * k);
+    const out = document.createElement('canvas'); out.width = W; out.height = IH + LH;
+    const c = out.getContext('2d');
+    c.fillStyle = p3.bg; c.fillRect(0, 0, W, out.height);
+    c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+    c.drawImage(raw, x0, y0, cw, chh, 0, 0, W, IH);
+    // the board runs on past the left edge: fade it out instead of cutting it
+    const fade = c.createLinearGradient(0, 0, W * 0.1, 0);
+    fade.addColorStop(0, p3.bg); fade.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = fade; c.fillRect(0, 0, W * 0.1, IH);
+    // colour bar with decade and minor ticks
+    const meta = D.field.meta[st.s], lo = meta.lo, hi = meta.hi;
+    const font = (sz, w) => `${w || 400} ${Math.round(sz * k)}px ${p3.font}`;
+    const bx = 60 * k, bw = 700 * k, by = IH + 58 * k, bh = 22 * k, X = (lg) => bx + (lg - lo) / (hi - lo) * bw;
+    c.fillStyle = p3.title; c.font = font(27); c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+    c.fillText(`Ground current density |J|  (${TXT[st.s].unit.replace('A/mm', 'A mm⁻¹,')})`, bx, by - 16 * k);
+    const g = c.createLinearGradient(bx, 0, bx + bw, 0);
+    for (const [t, col] of p3.heat) g.addColorStop(t, `rgb(${col.join(',')})`);
+    c.fillStyle = g; c.fillRect(bx, by, bw, bh);
+    c.strokeStyle = p3.sub; c.lineWidth = Math.max(1, 1.5 * k); c.strokeRect(bx, by, bw, bh);
+    c.fillStyle = p3.title; c.textBaseline = 'top'; c.textAlign = 'center'; c.font = font(24);
+    for (let d = Math.floor(lo); d <= Math.ceil(hi); d++) for (let j = 1; j < 10; j++) {
+      const lg = d + Math.log10(j);
+      if (lg < lo - 1e-9 || lg > hi + 1e-9) continue;
+      const x = X(lg), major = j === 1;
+      c.beginPath(); c.moveTo(x, by + bh); c.lineTo(x, by + bh + (major ? 10 : 5) * k); c.stroke();
+      if (major) c.fillText(String(Math.pow(10, d)), x, by + bh + 14 * k);
+    }
+    // line legend
+    let lx = bx + bw + 110 * k;
+    const ly = by + bh / 2;
+    c.textAlign = 'left'; c.textBaseline = 'middle'; c.font = font(26);
+    const item = (draw, text) => { draw(lx, ly); c.fillStyle = p3.title; c.fillText(text, lx + 62 * k, ly); lx += 62 * k + c.measureText(text).width + 60 * k; };
+    if (loopMode()) {
+      item((x, y) => {
+        c.strokeStyle = c.fillStyle = p3.line; c.lineWidth = 5 * k; c.setLineDash([]);
+        c.beginPath(); c.moveTo(x, y); c.lineTo(x + 32 * k, y); c.stroke();
+        c.beginPath(); c.moveTo(x + 48 * k, y); c.lineTo(x + 30 * k, y - 9 * k); c.lineTo(x + 30 * k, y + 9 * k); c.closePath(); c.fill();
+      }, 'current loop: forward path, then the main return route');
+    } else {
+      item((x, y) => { c.strokeStyle = p3.line; c.lineWidth = 4 * k; c.setLineDash([]); c.beginPath(); c.moveTo(x, y); c.lineTo(x + 46 * k, y); c.stroke(); }, 'return current, equal share per line');
+      item((x, y) => { c.strokeStyle = p3.fwd; c.lineWidth = 5 * k; c.setLineDash([11 * k, 7 * k]); c.beginPath(); c.moveTo(x, y); c.lineTo(x + 46 * k, y); c.stroke(); c.setLineDash([]); }, 'forward path');
+    }
+    item((x, y) => { c.fillStyle = p3.via; c.fillRect(x + 16 * k, y - 15 * k, 12 * k, 30 * k); }, 'via carrying return current');
+    return out.toDataURL(o.type || 'image/png', o.quality);
+  }
+  window.RP3D = { figure };
+  async function saveWebp() {                         // the publication figure above, as WebP
+    const url = await figure({ width: 2400, type: 'image/webp', quality: 0.9 });
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url; a.download = `lipo-boost-${st.s}-3d.webp`;
+    document.body.appendChild(a); a.click(); a.remove();
   }
 
   // ---------------------------------------------------------------- hover read-out
@@ -1704,8 +2164,10 @@ const D = /*__DATA__*/null;
     const s = { hot: 'hot', input: 'input', dc: 'dc', fb: 'hot' }[e.detail];
     if (s && s !== st.s) setScenario(s);
   });
+  document.addEventListener('rp:style', () => { if (renderer) styleScene(); setScenario(st.s); });
   $('#v3d-reset').addEventListener('click', () => { if (renderer) home(); });
   $('#v3d-png').addEventListener('click', savePng);
+  $('#v3d-webp').addEventListener('click', saveWebp);
   const mot = $('#v3d-motion');
   mot.addEventListener('click', () => {
     st.paused = !st.paused;

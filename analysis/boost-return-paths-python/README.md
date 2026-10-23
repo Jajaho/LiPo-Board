@@ -2,7 +2,7 @@
 
 Layout review of the MT3608 boost stage on the 2019 board: where its currents flow in the ground copper, how large the switching loop is, and how much of the return-path voltage reaches the feedback divider.
 
-Open `boost-return-paths.html` in a browser for the interactive result: animated current flow and current-density maps per layer for the switching loop, input loop and DC power path, the ground potential seen by the feedback divider, the top-layer ground islands, and the findings with fixes.
+Open `boost-return-paths.html` in a browser for the interactive result: animated current flow and current-density maps per layer for the switching loop, input loop and DC power path, the ground potential seen by the feedback divider, the top-layer ground islands, and the findings with fixes. `boost-return-paths-ac.html` is the same page with the switching-loop and input-loop maps from the AC solve (below) instead of the DC one.
 
 ## Run it
 
@@ -10,15 +10,16 @@ Open `boost-return-paths.html` in a browser for the interactive result: animated
 uv run analysis/boost-return-paths-python/run_all.py
 ```
 
-The run takes about 20 s, needs numpy, scipy, pillow and contourpy (declared inline, so `uv` installs them), and writes intermediate arrays to `work/` (ignored by git). Each step can also be run on its own in this order: `connectivity.py`, `solve.py`, `loop_area.py`, `gen_viz.py`.
+The run takes about 4 min (the AC solve is most of it), needs numpy, scipy, pillow and contourpy (declared inline, so `uv` installs them), and writes intermediate arrays to `work/` (ignored by git). Each step can also be run on its own in this order: `connectivity.py`, `solve.py`, `solve_ac.py`, `loop_area.py`, `gen_viz.py`.
 
 | File | Does |
 |---|---|
 | `board.py` | Paths, constants, KiCad s-expression reader, EAGLE Gerber parser, rasterisers |
 | `connectivity.py` | Splits each copper layer into connected pieces and assigns nets, for the Gerbers and for the KiCad fill |
 | `solve.py` | Resistive current-spreading solve in the ground copper of both layers for three scenarios |
+| `solve_ac.py` | R + jωL solve of the switching loop (100 MHz) and input loop (1.2 MHz): current crowding, loop inductance, capacitor split |
 | `loop_area.py` | Effective switching-loop area from the solved current |
-| `gen_viz.py` | Heatmaps, flow field and geometry, merged into `template.html` to produce `boost-return-paths.html` |
+| `gen_viz.py` | Heatmaps, flow field and geometry, merged into `template.html` to produce `boost-return-paths.html` and `boost-return-paths-ac.html` |
 
 ## Inputs
 
@@ -40,6 +41,22 @@ The run takes about 20 s, needs numpy, scipy, pillow and contourpy (declared inl
 
 - Loop area is the magnetic moment of the forward path (traces as line currents) plus the solved return current, divided by the loop current.
 
+### AC solve (`solve_ac.py`)
+
+Above about R/(2πL) ≈ 0.6 MHz the switching loop is inductive: the return no longer spreads by resistance but crowds under its forward path. `solve_ac.py` solves that regime on the same raster as a quasi-static PEEC model:
+
+- Every cell edge of the solved nets' copper (both layers) is a current element with one square of resistance and a partial inductance to every parallel element (Neumann formula, self term regularised by the cross-section's geometric mean distance), applied by FFT. Vias are vertical elements with their own partial inductance.
+- The forward copper is solved too (SW, 5V or BAT+), not drawn as a line.
+- Parts are straight line currents between their pad centres, 0.5 mm above the top copper. The IC switch and L1 carry a prescribed 1 A; C1, C4, C3 and D1 are solved branches (22 µF / 5 mΩ, 10 µF / 10 mΩ, 22 µF / 5 mΩ, short).
+- The kernel reproduces the analytic partial inductance of straight strips to within 1 %.
+
+| Scenario | Frequency | Loop | Solved |
+|---|---|---|---|
+| `hot` | 100 MHz (edges) | IC1 pin 2 → switch → SW → D1 → 5V → C3 → GND | GND, 5V, SW copper |
+| `input` | 1.2 MHz (switching frequency) | C1/C4 → BAT+ → L1 → SW → switch → IC1 pin 2 → GND | GND, BAT+, SW copper |
+
+In `boost-return-paths-ac.html` the switching-loop and input-loop maps and via shares come from this solve (amplitude for the heatmap, the real part for the flow direction); the DC path and the feedback-potential view stay resistive. Its prose and fixed figures are still the DC page's.
+
 ## Results
 
 | | As fabricated (Gerbers) | KiCad-2019 fill |
@@ -52,9 +69,20 @@ The run takes about 20 s, needs numpy, scipy, pillow and contourpy (declared inl
 
 For comparison, the tightest possible return route through the J3 vias gives 93 mm² and a direct top-layer connection from C3− to IC1 pin 2 gives 49 mm².
 
+AC solve, as fabricated (KiCad fill in brackets):
+
+| | |
+|---|---|
+| Switching-loop inductance at 100 MHz | 13.6 nH (14.1 nH) |
+| Switching-loop copper resistance at 100 MHz, current crowded | 38 mΩ |
+| Switching return dropping to the bottom near J3 / rising at IC1 pin 2 | 69 % / 91 % (DC: 58 % / 86 %) |
+| Input-loop inductance at 1.2 MHz | 5.9 nH |
+| Input ripple through C1 / C4 | 0.44 A / 0.60 A per 1 A, 31° apart |
+
 ## Limits
 
-- This is a DC (resistive) solution. At switching-edge frequencies the return current crowds closer to the forward path, so the field overstates spreading; it still has to pass through the same islands and vias, which is why the loop area is quoted as 93–180 mm².
+- The DC solve overstates spreading at switching-edge frequencies; the AC solve covers that, but it is quasi-static (no radiation or dielectric) and part ESL beyond the pad-to-pad line is not included.
+- An openEMS full-wave cross-check (`../boost-return-paths-circuitrf/hot-loop-3d`) is not yet valid: its first run shorted SW to the ground pour under D1 and its grid has one cell through the FR4.
 - The example FB spike in the page (0.18 V) uses an assumed 2 nH of shared return and a 1.5 A edge in 10 ns; it is not computed.
 - Not benchmarked against a commercial field solver. A probe measurement on SW and FB is the real test.
 - The prose and key figures in `template.html` were written by hand from this output; rerunning updates the data and the computed figures in the page, not the prose.

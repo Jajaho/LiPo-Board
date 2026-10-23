@@ -24,12 +24,6 @@ G2 = 2                  # particle field cell = G2 raster cells (0.1 mm)
 
 ROLE = {'N$1': 'sw', '5V': 'vout', 'BAT+': 'vin', 'BAT-': 'batn', 'N$6': 'fb', 'N$8': 'en', 'GND': 'gnd', 'VBUS': 'vbus'}
 
-RAMP = {  # dark-panel sequential ramps: near-zero recedes into the board, high current is bright
-    'F': [(0.00, (120, 60, 20)), (0.45, (214, 110, 40)), (0.80, (250, 170, 70)), (1.00, (255, 236, 190))],
-    'B': [(0.00, (20, 60, 120)), (0.45, (40, 120, 214)), (0.80, (90, 190, 250)), (1.00, (215, 245, 255))],
-    'P': [(0.00, (40, 30, 90)), (0.45, (110, 85, 210)), (0.80, (170, 150, 245)), (1.00, (235, 228, 255))],
-}
-
 
 def r2(v):
     return round(float(v), 2)
@@ -104,27 +98,50 @@ def jfield(V):
     return Jx, Jy
 
 
-def colorize(t, ramp, alpha_max=0.92, gamma=0.9):
-    t = np.clip(t, 0, 1)
-    stops = RAMP[ramp]
-    rgb = np.zeros(t.shape + (3,))
-    for (a, ca), (b, cb) in zip(stops[:-1], stops[1:]):
-        m = (t >= a) & (t <= b)
-        u = ((t - a) / (b - a))[m][:, None]
-        rgb[m] = np.array(ca) * (1 - u) + np.array(cb) * u
-    alpha = (t ** gamma) * alpha_max
-    return np.dstack([rgb, alpha * 255]).astype(np.uint8)
-
-
-def png_uri(img):
+def gray_uri(t):
+    """Scalar map 0..1 as an 8-bit grey PNG; the page colours it with the ramp of the chosen figure style."""
+    img = np.round(np.clip(np.nan_to_num(t), 0, 1) * 255).astype(np.uint8)
     buf = io.BytesIO()
-    Image.fromarray(img, 'RGBA').save(buf, 'PNG', optimize=True)
+    Image.fromarray(img, 'L').save(buf, 'PNG', optimize=True)
     return 'data:image/png;base64,' + base64.b64encode(buf.getvalue()).decode()
 
 
 def load_V(scenario):
     d = np.load(B.work_path(f'V_gerber_{scenario}.npz'))
     return {'F': d['F'], 'B': d['B']}
+
+
+AC = ('hot', 'input')       # scenarios the AC page draws from the AC (R + jwL) solve
+
+
+def load_J(scenario, gnd, ac=False):
+    """Ground-copper current per layer: (Jx, Jy, |J|, copper) in A/mm per 1 A.
+
+    With ac, hot and input come from solve_ac.py: |J| is the amplitude, Jx/Jy the real part, i.e. the
+    flow at the instant the 1 A source peaks. Otherwise (and for dc) from solve.py."""
+    path = B.work_path(f'Jac_gerber_{scenario}.npz')
+    out = {}
+    if ac and scenario in AC:
+        d = np.load(path)
+        for L in 'FB':
+            jx, jy = np.nan_to_num(d[L + 'X']), np.nan_to_num(d[L + 'Y'])
+            cu = gnd[L]
+            mag = np.where(cu, np.sqrt(abs(jx) ** 2 + abs(jy) ** 2), 0)
+            out[L] = (np.where(cu, jx.real, 0), np.where(cu, jy.real, 0), mag, cu)
+        return out
+    V = load_V(scenario)
+    for L in 'FB':
+        jx, jy = jfield(V[L])
+        out[L] = (jx, jy, np.hypot(jx, jy), ~np.isnan(V[L]))
+    return out
+
+
+def via_currents(scenario, res, ac=False):
+    """Current changing layer at each ground via / plated pin, + = top -> bottom."""
+    if ac and scenario in AC:
+        sol = json.loads(B.work_path('solve_ac_gerber.json').read_text())
+        return [(x, y, re) for x, y, net, re, im in sol[scenario]['vias'] if net == 'GND']
+    return res[scenario + '_vias']
 
 
 def fab_outlines():
@@ -161,7 +178,7 @@ def fab_outlines():
     return ''.join(fab)
 
 
-def build_payload():
+def build_payload(ac=False):
     pcb = B.load_pcb()
     R = np.load(B.work_path('raster_gerber.npz'))
     cn = json.loads(B.work_path('comp_net_gerber.json').read_text())
@@ -205,23 +222,24 @@ def build_payload():
     heat, fields, field_meta = {}, {}, {}
     GH, GW = H // G2, W // G2
     blob = bytearray()
+    gnd = {L: np.zeros((H, W), bool) for L in 'FB'}
+    for k in (k for k, v in cn.items() if v == ['GND']):
+        gnd[k[0]] |= lab[k[0]] == int(k[1:])
     for s in ('hot', 'input', 'dc'):
-        V = load_V(s)
-        J = {L: jfield(V[L]) for L in 'FB'}
-        mags = np.concatenate([np.hypot(*J[L])[~np.isnan(V[L])] for L in 'FB'])
+        J = load_J(s, gnd, ac)
+        mags = np.concatenate([J[L][2][J[L][3]] for L in 'FB'])
         hi = math.log10(np.percentile(mags[mags > 0], 99.7))
         lo = hi - DECADES
         heat[s] = {}
         field_meta[s] = {'lo': lo, 'hi': hi, 'jmax': r2(10 ** hi)}
         for L in 'FB':
-            Jx, Jy = J[L]
-            mag = np.hypot(Jx, Jy)
+            Jx, Jy, mag, copper = J[L]
             t = (np.log10(np.maximum(mag, 1e-12)) - lo) / (hi - lo)
-            t[np.isnan(V[L])] = 0
-            heat[s][L] = png_uri(colorize(t, L, gamma=1.6))
+            t[~copper] = 0
+            heat[s][L] = gray_uri(t)
             bx = Jx[:GH * G2, :GW * G2].reshape(GH, G2, GW, G2).mean((1, 3))
             by = Jy[:GH * G2, :GW * G2].reshape(GH, G2, GW, G2).mean((1, 3))
-            cu = (~np.isnan(V[L]))[:GH * G2, :GW * G2].reshape(GH, G2, GW, G2).mean((1, 3)) > 0.5
+            cu = copper[:GH * G2, :GW * G2].reshape(GH, G2, GW, G2).mean((1, 3)) > 0.5
             bm = np.hypot(bx, by)
             tm = np.clip((np.log10(np.maximum(bm, 1e-12)) - lo) / (hi - lo), 0, 1)
             m8 = np.where(cu, 1 + np.round(tm * 254), 0).astype(np.uint8)
@@ -235,12 +253,10 @@ def build_payload():
     pot, iso = {}, {}
     for L in 'FB':
         t = Vh[L] / vc3
-        img = colorize(np.nan_to_num(np.clip(t, 0, 1.0)) * 0.97 + 0.03 * (~np.isnan(t)), 'P', alpha_max=0.85, gamma=1.0)
-        img[np.isnan(t)] = 0
-        pot[L] = png_uri(img)
+        pot[L] = gray_uri(np.where(np.isnan(t), 0, np.clip(np.nan_to_num(t), 0, 1) * 0.97 + 0.03))
         iso[L] = iso_paths(t, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
 
-    via_cur = {s: [{'x': r2(x), 'y': r2(y), 'i': round(c, 3)} for x, y, c in res[s + '_vias'] if abs(c) >= 0.04]
+    via_cur = {s: [{'x': r2(x), 'y': r2(y), 'i': round(c, 3)} for x, y, c in via_currents(s, res, ac) if abs(c) >= 0.04]
                for s in ('hot', 'input', 'dc')}
 
     return {
@@ -256,12 +272,14 @@ def build_payload():
 
 
 def main():
-    data = json.dumps(build_payload(), separators=(',', ':'))
-    B.work_path('viz_data.json').write_text(data)
+    """The DC page, and beside it the same page with the switching and input loops from solve_ac.py."""
     template = B.TEMPLATE.read_text(encoding='utf8')
     assert template.count('/*__DATA__*/null') == 1
-    B.PAGE.write_text(template.replace('/*__DATA__*/null', data), encoding='utf8')
-    print(f'wrote {B.PAGE.name} ({B.PAGE.stat().st_size / 1e6:.2f} MB)')
+    for page, ac in ((B.PAGE, False), (B.PAGE_AC, True)):
+        data = json.dumps(build_payload(ac), separators=(',', ':'))
+        B.work_path(f'viz_data{"_ac" if ac else ""}.json').write_text(data)
+        page.write_text(template.replace('/*__DATA__*/null', data), encoding='utf8')
+        print(f'wrote {page.name} ({page.stat().st_size / 1e6:.2f} MB)')
 
 
 if __name__ == '__main__':
